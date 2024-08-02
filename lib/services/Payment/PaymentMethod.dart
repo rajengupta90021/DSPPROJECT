@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:dspuiproject/services/BottomNavigationfooter/NavigationMenu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import '../../constant/colors.dart';
 import '../../provider/CartProvider.dart';
+import '../../provider/NotificationController.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -23,6 +25,14 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
   @override
   void initState() {
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationCreatedMethod:
+        NotificationController.onNotificationCreatedMethod,
+        onNotificationDisplayedMethod:
+        NotificationController.onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod:
+        NotificationController.onDismissActionReceivedMethod);
     super.initState();
   }
 
@@ -313,15 +323,42 @@ class _PaymentMethodState extends State<PaymentMethod> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     // Handle payment confirmation
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false, // Prevent dismiss on tap outside
+                      builder: (BuildContext context) {
+                        return Center(
+                          child: CircularProgressIndicator(), // Loading indicator
+                        );
+                      },
+                    );
+                    await Future.delayed(Duration(seconds: 2));
                     QuickAlert.show(
                       context: context,
                       type: QuickAlertType.success,
                       title: 'Order Confirmation',
                       text: 'We Will Reach Out you Soon.',
                       confirmBtnText: 'OK',
-                      onConfirmBtnTap: () {
+                      onConfirmBtnTap: () async {
+
+                        AwesomeNotifications().createNotification(
+                          content: NotificationContent(
+                              id: 1,
+                              channelKey: "basic_channel",
+                              title: "Hello User!",
+                              body: "Yay! Thank you for Connecting with us.",
+                            icon: 'resource://drawable/launcher_icon',
+                            notificationLayout: NotificationLayout.BigPicture,
+                          ),
+                          
+                        );
+                        final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+                        // Clear the cart
+                        await cartProvider.clearCart();
+
                         // Handle additional actions if needed
                         Navigator.pushAndRemoveUntil(
                           context,

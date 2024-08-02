@@ -1,3 +1,5 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:dspuiproject/constant/colors.dart';
 import 'package:dspuiproject/provider/CartProvider.dart';
 import 'package:dspuiproject/provider/ChildMemberController.dart';
 import 'package:dspuiproject/provider/DateTimeProvider.dart';
@@ -35,6 +37,27 @@ void main() async {
     ),
   );
   SharedPreferences   prefs = await SharedPreferences.getInstance();
+  await AwesomeNotifications().initialize( 'resource://drawable/launcher_icon', [
+    NotificationChannel(
+      channelGroupKey: "basic_channel_group",
+      channelKey: "basic_channel",
+      channelName: "Basic Notification",
+      channelDescription: "Basic notifications channel",
+      ledColor: iconcolor,
+      icon: 'resource://drawable/launcher_icon',
+
+    )
+  ], channelGroups: [
+    NotificationChannelGroup(
+      channelGroupKey: "basic_channel_group",
+      channelGroupName: "Basic Group",
+    )
+  ]);
+  bool isAllowedToSendNotification =
+  await AwesomeNotifications().isNotificationAllowed();
+  if (!isAllowedToSendNotification) {
+    AwesomeNotifications().requestPermissionToSendNotifications();
+  }
 
   runApp(const MyApp());
 }

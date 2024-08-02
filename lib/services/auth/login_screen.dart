@@ -5,6 +5,7 @@ import 'package:dspuiproject/services/home_page2.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import '../../provider/controller/loginController.dart';
 import '../../services/BottomNavigationfooter/NavigationMenu.dart';
@@ -35,29 +36,6 @@ class _loginscreenState extends State<loginscreen> {
     emailcontroller.dispose();
     passwordcontroller.dispose();
   }
-
-  // void login() {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //
-  //   _auth.signInWithEmailAndPassword(
-  //     email: emailcontroller.text.toString(),
-  //     password: passwordcontroller.text.toString(),
-  //   ).then((value) {
-  //     Utils().toastmessage("login successfully  "+value.user!.email.toString(),Colors.green);
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(builder: (context)=> NavigationMenu()),
-  //     );
-  //   }).onError((error, stackTrace) {
-  //     Utils().toastmessage( "some error "+error.toString(),Colors.red);
-  //   }).whenComplete(() {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +117,16 @@ class _loginscreenState extends State<loginscreen> {
                       onTap: (){
 
                         print("tab");
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPassword()));
+                        Fluttertoast.showToast(
+                          msg: "We are working on this",
+                          toastLength: Toast.LENGTH_SHORT, // You can use Toast.LENGTH_LONG for a longer duration
+                          gravity: ToastGravity.BOTTOM, // You can adjust the position if needed
+                          timeInSecForIosWeb: 1, // iOS web duration
+                          backgroundColor: Colors.black,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                        // Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPassword()));
                       },
                       child: Text('forgot password',style: TextStyle(fontSize: 15,decoration: TextDecoration.underline),)),
 
@@ -182,7 +169,17 @@ class _loginscreenState extends State<loginscreen> {
                 SizedBox(height: 20),
                 InkWell(
                   onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>loginwithphonenumber()));
+                    Fluttertoast.showToast(
+                      msg: "We are working on this",
+                      toastLength: Toast.LENGTH_SHORT, // You can use Toast.LENGTH_LONG for a longer duration
+                      gravity: ToastGravity.BOTTOM, // You can adjust the position if needed
+                      timeInSecForIosWeb: 1, // iOS web duration
+                      backgroundColor: Colors.black,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>loginwithphonenumber()));
+
                   },
                   child: Container(
                     height: 50,
