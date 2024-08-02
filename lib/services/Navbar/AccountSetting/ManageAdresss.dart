@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../Payment/EditAddressPage.dart'; // Adjust import path as per your project structure
+import '../../Payment/AddNewAddress.dart'; // Adjust import path as per your project structure
 
 class ManageAddressPage extends StatefulWidget {
   @override
@@ -55,7 +55,7 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditAddressPage(),
+                          builder: (context) => AddNewAddress(),
                         ),
                       );
                     },
@@ -73,7 +73,7 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EditAddressPage(),
+                      builder: (context) => AddNewAddress(),
                     ),
                   );
                 },
