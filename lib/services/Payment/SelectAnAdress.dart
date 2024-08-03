@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Model/UserAddress.dart';
+import '../../provider/AddressControlller.dart';
 import '../../repository/UserAddressRepository.dart';
 import 'AddNewAddress.dart';
 
@@ -204,6 +206,22 @@ class _SelectAnAddressState extends State<SelectAnAddress> {
         child: ElevatedButton(
           onPressed: () {
            if(_addresses.isNotEmpty){
+
+             // Store selected address in provider
+             final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+
+             // Assuming the first address is selected
+             final selectedAddress = _addresses[0].data?.currentAddress ?? '';
+
+             final addressComponents = _extractAddressComponents(selectedAddress);
+             addressProvider.setAddress(addressComponents['address'] ?? '');
+             addressProvider.setHouseNo(addressComponents['houseNo'] ?? '');
+             addressProvider.setPhoneNo(addressComponents['phoneNo'] ?? '');
+             addressProvider.setPinCode(addressComponents['pinCode'] ?? '');
+             addressProvider.setCityName(addressComponents['cityName'] ?? '');
+             addressProvider.setStateName(addressComponents['stateName'] ?? '');
+             addressProvider.setLocality(addressComponents['locality'] ?? '');
+
              Navigator.push(
                context,
                MaterialPageRoute(

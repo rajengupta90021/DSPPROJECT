@@ -83,6 +83,7 @@ dependencies:
   checkout_screen_ui: ^1.0.1
   quickalert: ^1.0.2
   awesome_notifications: ^0.9.3+1
+  country_state_city_pro: ^0.0.6
 
 
 

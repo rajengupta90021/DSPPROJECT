@@ -1,5 +1,6 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:dspuiproject/constant/colors.dart';
+import 'package:dspuiproject/provider/AddressControlller.dart';
 import 'package:dspuiproject/provider/CartProvider.dart';
 import 'package:dspuiproject/provider/ChildMemberController.dart';
 import 'package:dspuiproject/provider/DateTimeProvider.dart';
@@ -121,6 +122,10 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => DateTimeProvider(),
+
+
+        ),ChangeNotifierProvider(
+          create: (context) => AddressProvider(),
 
 
         ),

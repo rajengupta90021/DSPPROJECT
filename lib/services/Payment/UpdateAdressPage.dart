@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:country_state_city_pro/country_state_city_pro.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -7,9 +10,8 @@ import '../../Model/UserAddress.dart';
 import '../../constant/colors.dart';
 import '../../repository/UserAddressRepository.dart';
 import 'SelectAnAdress.dart';
-
+import 'package:http/http.dart' as http;
 class UpdateAddressPage extends StatefulWidget {
-
   final String address;
   final String houseNo;
   final String phoneNo;
@@ -27,24 +29,27 @@ class UpdateAddressPage extends StatefulWidget {
     required this.stateName,
     required this.locality,
   });
+
   @override
   _UpdateAddressPageState createState() => _UpdateAddressPageState();
 }
 
 class _UpdateAddressPageState extends State<UpdateAddressPage> {
   final _formKey = GlobalKey<FormState>();
-  late  TextEditingController address1Controller = TextEditingController();
-  late TextEditingController houseBlockController = TextEditingController();
-  late TextEditingController pinCodeController = TextEditingController();
-  late TextEditingController areaCityController = TextEditingController();
-  late TextEditingController stateController = TextEditingController();
-  late TextEditingController localityController = TextEditingController();
-  late TextEditingController phoneNumberController = TextEditingController(); // New controller for phone number
+  late TextEditingController address1Controller;
+  late TextEditingController houseBlockController;
+  late TextEditingController pinCodeController;
+  late TextEditingController areaCityController;
+  late TextEditingController stateController;
+  late TextEditingController localityController;
+  late TextEditingController phoneNumberController;
+  final TextEditingController countryController = TextEditingController();
   String? userId;
   final AddressRepository addressRepository = AddressRepository();
+  String pinCodeDetails = "";
+  String? selectedLocality;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     address1Controller = TextEditingController(text: widget.address);
     houseBlockController = TextEditingController(text: widget.houseNo);
@@ -53,24 +58,42 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
     areaCityController = TextEditingController(text: widget.cityName);
     stateController = TextEditingController(text: widget.stateName);
     localityController = TextEditingController(text: widget.locality);
+    pinCodeController.addListener(_onPinCodeChanged);
+    selectedLocality = 'Yes';
     _loadUsername();
   }
 
+  @override
+  void dispose() {
+    pinCodeController.removeListener(_onPinCodeChanged);
+    pinCodeController.dispose();
+    address1Controller.dispose();
+    houseBlockController.dispose();
+    phoneNumberController.dispose();
+    areaCityController.dispose();
+    stateController.dispose();
+    localityController.dispose();
+    super.dispose();
+  }
+  void _onPinCodeChanged() {
+    final pinCode = pinCodeController.text;
+    if (pinCode.length == 6) {  // Assuming a valid pin code is 6 digits
+      getDataFromPinCode(pinCode);
+    }
+  }
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-
     setState(() {
       userId = prefs.getString('user_id') ?? '';
-
-
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('update Address'),
+        centerTitle: true,
+        title: Text('Update Address',style: TextStyle(fontWeight: FontWeight.bold),),
         backgroundColor: iconcolor,
       ),
       body: Padding(
@@ -84,69 +107,159 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 16),
-                      Text(
-                        'Enter your address details below:',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Center(
+                        child: Image.asset('assets/address.png',
+                          width: 80.0, // Set the desired width
+                          height: 80.0, // Set the desired height
+                          fit: BoxFit.cover,),
                       ),
                       SizedBox(height: 16),
-                      _buildTextField(
+                      Center(
+                        child: Text(
+                          'Enter your address details below:',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      TextFormField(
                         controller: address1Controller,
-                        label: 'Address',
-                        hint: 'Enter address line 1',
-                        validatorMessage: 'Please enter Address 1',
+                        decoration: InputDecoration(
+                          labelText: 'Address',
+                          hintText: 'Enter address line 1',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Address 1';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 26),
-                      _buildTextField(
+                      TextFormField(
                         controller: houseBlockController,
-                        label: 'House/ Flat/ Block No',
-                        hint: 'Enter house/flat/block number',
-                        validatorMessage: 'Please enter House/ Flat/ Block No',
-                      ),
-                      SizedBox(height: 26),
-                      _buildTextField(
-                        controller: phoneNumberController, // New field
-                        label: 'Phone Number',
-                        hint: 'Enter phone number',
-                        validatorMessage: 'Please enter Phone Number',
-                        keyboardType: TextInputType.phone, // Phone number keyboard type
-                      ),
-                      SizedBox(height: 26),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildTextField(
-                              controller: pinCodeController,
-                              label: 'Pin Code',
-                              hint: 'Enter pin code',
-                              keyboardType: TextInputType.phone,
-                              validatorMessage: 'Please enter Pin Code',
-                            ),
+                        decoration: InputDecoration(
+                          labelText: 'House/ Flat/ Block No',
+                          hintText: 'Enter house/flat/block number',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: _buildTextField(
-                              controller: areaCityController,
-                              label: 'City Name',
-                              hint: 'Enter area or city',
-                              validatorMessage: 'Please enter Area, City Name',
-                            ),
-                          ),
-                        ],
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter House/ Flat/ Block No';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 26),
-                      _buildTextField(
+                      TextFormField(
+                        controller: phoneNumberController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+                          labelText: 'Mobile Number',
+                          prefixText: '+91 ',
+                          prefixStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a mobile number';
+                          }
+                          RegExp mobileRegex = RegExp(r'^\+?[1-9]\d{9}$');
+                          if (!mobileRegex.hasMatch(value)) {
+                            return 'Please enter a valid mobile number';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 26),
+                      TextFormField(
+                        controller: pinCodeController,
+                        decoration: InputDecoration(
+                          labelText: 'Pin Code',
+                          hintText: 'Enter pin code',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Pin Code';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 25),
+                      TextFormField(
+                        controller: areaCityController,
+                        decoration: InputDecoration(
+                          labelText: 'City Name',
+                          hintText: 'Enter area or city',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Area, City Name';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 26),
+                      TextFormField(
                         controller: stateController,
-                        label: 'State Name',
-                        hint: 'Enter state name',
-                        validatorMessage: 'Please enter State Name',
+                        decoration: InputDecoration(
+                          labelText: 'State Name',
+                          hintText: 'Enter state name',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter State Name';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 26),
-                      _buildTextField(
-                        controller: localityController,
-                        label: 'Locality',
-                        hint: 'Enter locality',
-                        validatorMessage: 'Please enter Locality',
+                      DropdownButtonFormField<String>(
+                        value: selectedLocality,
+                        decoration: InputDecoration(
+                          labelText: 'Locality',
+                          hintText: 'Select locality',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        items: ['Yes', 'No'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            localityController.text = newValue!;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a locality option';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 26),
                     ],
@@ -157,18 +270,17 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
             ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-
                   showDialog(
                     context: context,
-                    barrierDismissible: false, // Prevent dismiss on tap outside
+                    barrierDismissible: false,
                     builder: (BuildContext context) {
                       return Center(
-                        child: CircularProgressIndicator(), // Loading indicator
+                        child: CircularProgressIndicator(),
                       );
                     },
                   );
                   await Future.delayed(Duration(seconds: 2));
-                  // Print all field values
+
                   String addressDetails =
                       '${address1Controller.text}\n'
                       '${houseBlockController.text}\n'
@@ -178,26 +290,19 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
                       '${stateController.text}\n'
                       '${localityController.text}';
 
-                  // Print the concatenated string with new lines
-                  print(addressDetails);
+                  bool addressUpdated = await addressRepository.updateUserAddress(userId!, addressDetails);
 
-                bool address = await addressRepository.updateUserAddress(userId!, addressDetails);
-                  if (address) {
-
-                    // Address created successfully
-
-
-                    Navigator.pop(context);
+                  Navigator.pop(context);
+                  if (addressUpdated) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Address updated successfully')),
                     );
-                    // await Future.delayed(Duration(seconds: 3));
-                    // Navigator.push(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => SelectAnAddress()),
+                    // );
                     Navigator.pop(context);
-
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SelectAnAddress()));
                   } else {
-                    // Failed to create address
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Failed to save address')),
                     );
@@ -222,34 +327,62 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required String validatorMessage,
-    TextInputType keyboardType = TextInputType.text, // Default to text input
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      keyboardType: keyboardType,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return validatorMessage;
+
+  Future<void> getDataFromPinCode(String pinCode) async {
+    final url = "http://www.postalpincode.in/api/pincode/$pinCode";
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        if (jsonResponse['Status'] == 'Error') {
+          // Show a snackbar if the PIN code is not valid
+          showSnackbar(context, "Pin Code is not valid. ");
+          setState(() {
+            pinCodeDetails = 'Pin code is not valid.';
+          });
+        } else {
+          // Parse and display details if the PIN code is valid
+          final postOfficeArray = jsonResponse['PostOffice'] as List;
+          final obj = postOfficeArray[0];
+
+          final district = obj['District'];
+          final state = obj['State'];
+          final country = obj['Country'];
+
+          setState(() {
+            pinCodeDetails =
+            'Details of pin code are:\nDistrict: $district\nState: $state\nCountry: $country';
+            areaCityController.text = district;
+            stateController.text = state;
+          });
         }
-        return null;
-      },
-      onChanged: (value) {
-        // Trigger validation to remove the error message as the user types
-        _formKey.currentState?.validate();
-      },
+      } else {
+        // Show a snackbar if there is an issue fetching data
+        showSnackbar(context, "Failed to fetch data. Please try again");
+        setState(() {
+          pinCodeDetails = 'Failed to fetch data. Please try again.';
+        });
+      }
+    } catch (e) {
+      // Show a snackbar if an error occurs during the API call
+      showSnackbar(context, "Error Occurred. Please try again");
+      setState(() {
+        pinCodeDetails = 'Error occurred. Please try again.';
+      });
+    }
+  }
+
+  // Function to display a snackbar with a specified message
+  void showSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 2), // Adjust the duration as needed
+      ),
     );
   }
 }
+

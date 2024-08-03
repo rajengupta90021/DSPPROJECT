@@ -105,6 +105,8 @@ class AddressRepository {
 
       if (response.statusCode == 200) {
         // Successfully updated address
+        print('Response body: ${response.body}');
+
         return true;
       } else {
         // Handle errors

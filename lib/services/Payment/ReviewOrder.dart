@@ -1,4 +1,5 @@
 import 'package:dspuiproject/services/Payment/PaymentScreen.dart';
+import 'package:dspuiproject/services/Payment/SelectAnAdress.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../Model/ChildMember.dart';
 import '../../Model/TestInformation.dart';
 import '../../dbHelper/DbHelper.dart';
+import '../../provider/AddressControlller.dart';
 import '../../provider/CartProvider.dart';
 import 'package:dspuiproject/constant/colors.dart';
 
@@ -16,6 +18,7 @@ import '../family_member_widgets/FamilyMember.dart';
 import 'BookingDate.dart';
 import 'CouponsScreen.dart';
 import 'PaymentMethod.dart';
+import 'UpdateAdressPage.dart';
 
 class ReviewOrder extends StatefulWidget {
   const ReviewOrder({Key? key}) : super(key: key);
@@ -341,22 +344,51 @@ class _ReviewOrderState extends State<ReviewOrder> {
     );
   }
 
+  // Widget _buildAddressDetails() {
+  //   // Replace with your implementation of address details widget
+  //   return Padding(
+  //     padding: const EdgeInsets.all(8.0),
+  //     child: Card(
+  //       child: ListTile(
+  //         leading: Icon(Icons.location_on, color: Colors.blue),
+  //         title: Text('NEW RAJA MANDI, KCT Trading, Raja Ki Mandi, Indi Agra, Uttar Pradesh, 282002'),
+  //         trailing: TextButton(
+  //           onPressed: () {
+  //             // Handle change address
+  //           },
+  //           child: Text('CHANGE', style: TextStyle(color: Colors.orange)),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget _buildAddressDetails() {
-    // Replace with your implementation of address details widget
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        child: ListTile(
-          leading: Icon(Icons.location_on, color: Colors.blue),
-          title: Text('NEW RAJA MANDI, KCT Trading, Raja Ki Mandi, Indi Agra, Uttar Pradesh, 282002'),
-          trailing: TextButton(
-            onPressed: () {
-              // Handle change address
-            },
-            child: Text('CHANGE', style: TextStyle(color: Colors.orange)),
+    return Consumer<AddressProvider>(
+      builder: (context, addressProvider, child) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            child: ListTile(
+              leading: Icon(Icons.location_on, color: Colors.blue),
+              title: Text(
+                '${addressProvider.address}, ${addressProvider.houseNo}, ${addressProvider.phoneNo}, ${addressProvider.pinCode}, ${addressProvider.cityName}, ${addressProvider.stateName}',
+              ),
+              trailing: TextButton(
+                onPressed: () {
+                  // Handle change address
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SelectAnAddress(), // Update with your page for changing address
+                    ),
+                  );
+                },
+                child: Text('CHANGE', style: TextStyle(color: Colors.orange)),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

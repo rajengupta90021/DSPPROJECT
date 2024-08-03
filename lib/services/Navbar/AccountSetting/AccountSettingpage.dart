@@ -1,3 +1,4 @@
+import 'package:dspuiproject/constant/colors.dart';
 import 'package:dspuiproject/services/Payment/AddNewAddress.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,6 +65,8 @@ class _AccountSettingpageState extends State<AccountSettingpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: iconcolor,
         title: Text('Account Settings'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
