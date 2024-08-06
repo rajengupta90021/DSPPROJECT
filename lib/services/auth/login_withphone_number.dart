@@ -1,4 +1,5 @@
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:dspuiproject/constant/colors.dart';
 import 'package:dspuiproject/services/auth/verifynumber.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,140 +25,136 @@ class _loginwithphonenumberState extends State<loginwithphonenumber> {
   String? _errorText;
   bool loading = false;
 
-  String _selectedCountryCode = '+91'; // Default country code
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _phoneNumberController.addListener(_validatePhoneNumber);
+  }
 
+  @override
+  void dispose() {
+    _phoneNumberController.removeListener(_validatePhoneNumber);
+    _phoneNumberController.dispose();
+    super.dispose();
+  }
+  void _validatePhoneNumber() {
+    String text = _phoneNumberController.text;
+    if (text.length > 10) {
+      // Show Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Phone number cannot be more than 10 digits"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+
+        ),
+      );
+
+      // Truncate the input to the first 10 digits
+      _phoneNumberController.text = text.substring(0, 10);
+      _phoneNumberController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _phoneNumberController.text.length),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Login with Phone Number"),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.white, Colors.blue.shade100],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+        SizedBox(height: 50,),
+            Image.asset("assets/otpngg.png",
+            width: 80,
+              height: 150,
 
-        child: SingleChildScrollView(
-          child: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: 60),
-                child: Image.asset(
-                  'assets/loginwithphonenumber.png',
-                  width: 150, // Adjust the width as needed
-                  height: 150, // Adjust the height as needed
+            ),
+            Center(child: Text("Your phone ! ",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold),),),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25,vertical: 6),
+              child: Text(
+                'We will send you a one-time password\non this mobile number',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
                 ),
               ),
-              SizedBox(height: 50),
-          
-              Row(
-                children: [
-                  CountryCodePicker(
-                    onChanged: (CountryCode countryCode) {
-                      setState(() {
-                        _selectedCountryCode = countryCode.toString();
-                      });
-                    },
-                    initialSelection: 'IN', // Initial country code
-                    favorite: ['+91'], // Your favorite country codes
-                    showCountryOnly: false,
-                    showOnlyCountryWhenClosed: false,
-                    alignLeft: false,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Form(
-                      key: formkey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            keyboardType: TextInputType.phone,
-                            controller: _phoneNumberController,
-                            decoration: InputDecoration(
-                              hintText: "Enter your phone number",
-                            ),
-                            validator: (value){
-                              if(value!.isEmpty){
-                                return "Enter phone number";
-                              }
-                              return null;
-                            },
-                          ),
-                          if (_errorText != null)
-                            Text(
-                              _errorText!,
-                              style: TextStyle(color: Colors.red),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 30),
-              roundedbotton(
-                title: "Login",
-                onTap: () {
-                  if (formkey.currentState!.validate()) {
-                    _startPhoneNumberVerification();
-                  }
-                },
-                loading: loading,
-              ),
-            ],
-          ),
+
+            ),
+            SizedBox(height: 20,),
+            PhoneText(),
+            SizedBox(height: 50,),
+            Button()
+
+          ],
         ),
       ),
     );
+
   }
 
-  void _startPhoneNumberVerification() {
-    setState(() {
-      loading = true;
-    });
-    String phoneNumber = _selectedCountryCode + _phoneNumberController.text.trim();
-    _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: (_) {},
-      verificationFailed: (FirebaseAuthException e) {
-        setState(() {
-          _errorText = e.message ?? 'Verification failed';
-          loading = false;
-        });
-      },
-      codeSent: (String verificationId, int? token) {
-        setState(() {
-          _errorText = null;
-          loading = false;
-        });
+  Widget PhoneText(){
+    return Padding(padding:EdgeInsets.symmetric(horizontal: 50),
+    child: TextField(
+controller: _phoneNumberController,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        prefix: Text("+91 "),
+        prefixIcon: Icon(Icons.phone),
+        labelText: "enter phone number ",
+        hintStyle: TextStyle(color: Colors.grey),
+        labelStyle: TextStyle(color: Colors.grey),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.blue
+          )
+        )
 
-        Fluttertoast.showToast(
-          msg: 'We have sent an OTP for verification.',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 5,
-          backgroundColor: Colors.black54,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+      ),
+    ),
+    );
+  }
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => VerifyCode(verificationId: verificationId)),
-        );
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        Utils().toastmessage('Verification timed out',Colors.red);
-        setState(() {
-          loading = false;
-        });
-      },
+  Widget Button(){
+    return Center(
+     child:  ElevatedButton(
+        onPressed: () {
+          // Add your onPressed code here!
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>VerifyCode(verificationId: '', phoneno: _phoneNumberController.text,)));
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: iconcolor, // Button color
+          padding: EdgeInsets.all(16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 90),
+          child: Text(
+            'Receive OTP',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -25,15 +25,16 @@ class _AddNewAddressState extends State<AddNewAddress> {
   final TextEditingController phoneNumberController = TextEditingController();
   String pinCodeDetails = "";// New controller for phone number
   String? userId;
-  String? selectedLocality;
+  String selectedLocality = 'Yes';
   final AddressRepository addressRepository = AddressRepository();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     pinCodeController.addListener(_onPinCodeChanged);
-    selectedLocality = 'Yes';
+
     _loadUsername();
+    localityController.text = selectedLocality;
   }
   @override
   void dispose() {
@@ -45,6 +46,7 @@ class _AddNewAddressState extends State<AddNewAddress> {
     areaCityController.dispose();
     stateController.dispose();
     localityController.dispose();
+    super.dispose();
   }
   void _onPinCodeChanged() {
     final pinCode = pinCodeController.text;
@@ -226,6 +228,8 @@ class _AddNewAddressState extends State<AddNewAddress> {
                         onChanged: (newValue) {
                           setState(() {
                             localityController.text = newValue!;
+                            selectedLocality = newValue!;
+                            localityController.text = newValue;
                           });
                         },
                         validator: (value) {
@@ -267,15 +271,17 @@ class _AddNewAddressState extends State<AddNewAddress> {
 
                   // Print the concatenated string with new lines
                   print(addressDetails);
-                  UserAdress? address = await addressRepository.createUserAddress(userId!, addressDetails, 0);
-                  if (address != null) {
+                  print(localityController.text);
+                  bool address = await addressRepository.CreateOrUpdate(userId!, addressDetails);
+                  if (address) {
 
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Address saved successfully')),
                     );
-                    Navigator.pop(context);
-                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>SelectAnAddress()));
+                    Navigator.pop(context,address);
+
+                    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SelectAnAddress()),result: (route) => false,);
 
                   } else {
                     // Failed to create address

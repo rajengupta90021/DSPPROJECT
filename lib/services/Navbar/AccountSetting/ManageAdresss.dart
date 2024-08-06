@@ -1,13 +1,11 @@
-import 'package:dspuiproject/constant/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Model/UserAddress.dart';
+import '../../../constant/colors.dart';
 import '../../../provider/AddressControlller.dart';
 import '../../../repository/UserAddressRepository.dart';
 import '../../Payment/AddNewAddress.dart';
-import '../../Payment/UpdateAdressPage.dart';
-import '../../family_member_widgets/FamilyMember.dart'; // Adjust import path as per your project structure
 
 class ManageAddressPage extends StatefulWidget {
   @override
@@ -15,9 +13,13 @@ class ManageAddressPage extends StatefulWidget {
 }
 
 class _ManageAddressPageState extends State<ManageAddressPage> {
-  List<UserAdress> _addresses = [];
+  List<Object> _addresses = [];
   String? userId;
   bool _isLoading = true;
+  final AddressRepository _addressRepository = AddressRepository();
+  late Future<List<UserAddress>> addressesFuture;
+  String? _selectedAddressId; // Track selected address ID
+
   @override
   void initState() {
     super.initState();
@@ -30,8 +32,7 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
       userId = prefs.getString('user_id') ?? '';
     });
     if (userId != null && userId!.isNotEmpty) {
-      final repository = AddressRepository();
-      List<UserAdress> addresses = await repository.fetchUserAddresses(userId!);
+      List<Object> addresses = await _addressRepository.fetchCurrentAddresses(userId!);
       setState(() {
         _addresses = addresses;
       });
@@ -43,70 +44,106 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
     });
   }
 
+  // void _onAddressSelected(String addressId, Map<String, String> addressComponents) {
+  //   setState(() {
+  //     _selectedAddressId = addressId;
+  //   });
+  //
+  //   // Update the AddressProvider with selected address details
+  //   final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+  //   addressProvider.setAddress(addressComponents['address'] ?? '');
+  //   addressProvider.setHouseNo(addressComponents['houseNo'] ?? '');
+  //   addressProvider.setPhoneNo(addressComponents['phoneNo'] ?? '');
+  //   addressProvider.setPinCode(addressComponents['pinCode'] ?? '');
+  //   addressProvider.setCityName(addressComponents['cityName'] ?? '');
+  //   addressProvider.setStateName(addressComponents['stateName'] ?? '');
+  //   addressProvider.setLocality(addressComponents['locality'] ?? '');
+  //
+  //   print('Selected Address:\n$addressId');
+  // }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         backgroundColor: iconcolor,
-        title: Text('Manage Address'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        centerTitle: true,
+        shadowColor: Colors.grey,
+        title: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Text('Select An Address'),
         ),
       ),
-      body: _isLoading ? Center(child: CircularProgressIndicator()):Padding(
+      body: _isLoading
+          ? Center(
+        child: CircularProgressIndicator(),
+      )
+          : Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_addresses.isNotEmpty) ...[
-              Text(
-                'Saved Addresses',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 20,),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _addresses.length,
-                  itemBuilder: (context, index) {
-                    final addressData = _addresses[index].data;
-                    final addressText = addressData?.currentAddress ?? '';
-                    final formattedAddressText = _extractAddressDetails(addressText);
-                    final addressComponents = _extractAddressComponents(addressText);
-
-
-                    return GestureDetector(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Saved Addresses',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: InkWell(
                       onTap: () {
-                        print('Selected address: $formattedAddressText');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddNewAddress(),
+                          ),
+                        );
                       },
-                      child: Card(
+                      child: Image.asset('assets/addressicon.png', width: 24, height: 24),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10,),
+              Container(
+                child: Expanded(
+                  child: ListView.builder(
+                    itemCount: _addresses.length,
+                    itemBuilder: (context, index) {
+                      final addressData = _addresses[index];
+                      final addressText = addressData.toString();
+                      final formattedAddressText = _extractAddressDetails(addressText);
+                      final addressComponents = _extractAddressComponents(addressText);
+
+
+                      return Card(
                         elevation: 5,
                         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
+                          side: BorderSide(
+                            color: _selectedAddressId == formattedAddressText ? iconcolor : Colors.transparent,
+                            width: 2,
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.location_on,
-                                color: Colors.blueGrey.shade700,
-                                size: 30,
-                              ),
+
                               SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Address',
+                                      'Address ${index+1}',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
@@ -124,42 +161,64 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.edit, color: Colors.blueAccent),
+                                icon: Icon(Icons.delete, color: iconcolor),
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => UpdateAddressPage(
+                                  print("Address Text: $addressText");
+                                  print("Formatted Address Text: $formattedAddressText");
+                                  print("Address Components: $addressComponents");
 
-                                        address: addressComponents['address'] ?? '',
-                                        houseNo: addressComponents['houseNo'] ?? '',
-                                        phoneNo: addressComponents['phoneNo'] ?? '',
-                                        pinCode: addressComponents['pinCode'] ?? '',
-                                        cityName: addressComponents['cityName'] ?? '',
-                                        stateName: addressComponents['stateName'] ?? '',
-                                        locality: addressComponents['locality'] ?? '',
-
-                                      ),
-                                    ),
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Confirm Delete'),
+                                        content: Text('Are you sure you want to delete this address?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: Text('Cancel'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: Text('Delete'),
+                                            onPressed: () async {
+                                              bool deleteResult = await _addressRepository.deleteAddress(userId!, addressText);
+                                              if (deleteResult) {
+                                                setState(() {
+                                                  _addresses.remove(addressData);
+                                                });
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('Address deleted successfully')),
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('Failed to delete address')),
+                                                );
+                                              }
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   );
                                 },
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               )
-
             ] else ...[
               Expanded(
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       SizedBox(height: 20),
                       Container(
                         alignment: Alignment.center,
@@ -173,25 +232,22 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
                             );
                           },
                           child: Row(
-                            mainAxisSize: MainAxisSize.min, // Makes the button width fit its content
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 'Add New Address',
                                 style: TextStyle(color: Colors.black, fontSize: 15),
                               ),
-                              SizedBox(width: 8), // Space between text and icon
-                              Icon(Icons.add,color: Colors.black,),
+                              SizedBox(width: 8),
+                              Icon(Icons.add, color: Colors.black,),
                             ],
                           ),
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 12), backgroundColor: iconcolor, // Background color
-                            // shape: RoundedRectangleBorder(
-                            //   borderRadius: BorderRadius.zero, // Sharp, rectangular corners
-                            // ),
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            backgroundColor: iconcolor,
                           ),
                         ),
                       ),
-
                     ],
                   ),
                 ),
@@ -200,8 +256,44 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
           ],
         ),
       ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.all(8.0),
+        child: ElevatedButton(
+          onPressed: () async {
+
+
+
+
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddNewAddress(),
+                ),
+              );
+
+
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   SnackBar(content: Text('Please add address')),
+            // );
+          },
+          child: Text(
+            'add address',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 120, vertical: 12),
+            backgroundColor: iconcolor,
+          ),
+        ),
+      ),
     );
   }
+
   String _extractAddressDetails(String address) {
     // Split the address string by newline characters
     final addressLines = address.split('\n');
@@ -248,34 +340,6 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
       'stateName': addressLines.length > 5 ? addressLines[5].trim() : '',
       'locality': addressLines.length > 6 ? addressLines[6].trim() : '',
     };
-  }
-  void _showDeleteConfirmationDialog(int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Delete Address'),
-          content: Text('Are you sure you want to delete this address?', style: TextStyle(fontSize: 18),),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Delete'),
-              onPressed: () {
-                setState(() {
-                  _addresses.removeAt(index);
-                });
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 }
 
@@ -327,10 +391,6 @@ class AddressItem extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: onEdit,
-            ),
-            IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
               onPressed: onDelete,
             ),
@@ -339,5 +399,4 @@ class AddressItem extends StatelessWidget {
       ),
     );
   }
-
 }

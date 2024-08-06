@@ -178,7 +178,7 @@ class _loginscreenState extends State<loginscreen> {
                       textColor: Colors.white,
                       fontSize: 16.0,
                     );
-                    // Navigator.push(context, MaterialPageRoute(builder: (context)=>loginwithphonenumber()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>loginwithphonenumber()));
 
                   },
                   child: Container(

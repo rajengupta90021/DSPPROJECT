@@ -41,7 +41,11 @@ class LoginController with ChangeNotifier {
         _sharedPreferencesService.saveUserData(userData);
 
         Utils().toastmessage("Login successful", Colors.green);
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => NavigationMenu()),
+              (Route<dynamic> route) => false, // Remove all previous routes
+        );
       } else {
         Utils().toastmessage("Login failed, check email and password", Colors.red);
       }
