@@ -7,6 +7,7 @@ import '../../SharedPreferecneService/SharedPreferenceSerivice.dart';
 import '../../repository/AuthRepository.dart';
 import '../../helper/utils.dart';
 import '../../services/BottomNavigationfooter/NavigationMenu.dart';
+import '../../widgets/SnackBarUtils.dart';
 
 class LoginController with ChangeNotifier {
   UserRepository _repository = UserRepository();
@@ -40,14 +41,18 @@ class LoginController with ChangeNotifier {
       if (userData != null) {
         _sharedPreferencesService.saveUserData(userData);
 
-        Utils().toastmessage("Login successful", Colors.green);
+        SnackBarUtils.showSuccessSnackBar(
+          context,
+          "login successful",
+        );
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => NavigationMenu()),
               (Route<dynamic> route) => false, // Remove all previous routes
         );
       } else {
-        Utils().toastmessage("Login failed, check email and password", Colors.red);
+
+        SnackBarUtils.showErrorSnackBar(context, "Login failed, check email and password");
       }
     } catch (e) {
       setLoading(false);

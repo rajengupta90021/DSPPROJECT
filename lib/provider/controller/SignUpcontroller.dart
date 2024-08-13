@@ -37,8 +37,10 @@ class SignUpController with ChangeNotifier {
         print("${result.data?.email}");
         print("${result.data?.password}");
         print("${result.data?.role}");
+        print("${result.data?.mobile}");
+
         _sharedPreferencesService.saveUserData(result);
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>NavigationMenu()));
+        // Navigator.push(context, MaterialPageRoute(builder: (context)=>NavigationMenu()));
         print("Added to database API success: $result");
         return true ;
 
@@ -86,6 +88,7 @@ class SignUpController with ChangeNotifier {
     _sharedPreferencesService.saveUserData(result);
     setLoading(false);
     Fluttertoast.showToast( backgroundColor: Colors.green,msg: 'User data updated successfully');
+
 
   }else{
     Fluttertoast.showToast( backgroundColor: Colors.red,msg: 'User data not updated');

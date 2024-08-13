@@ -1,33 +1,52 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../Model/UserAddress.dart'; // Replace with your UserAddress model
-import '../repository/UserAddressRepository.dart'; // Replace with your repository file
 
-class UpdateAddressScreen extends StatefulWidget {
+import '../Model/UserInfo.dart';
+import '../data/app_exception.dart';
+import '../repository/AuthRepository.dart';
+
+class Testingpage extends StatefulWidget {
   @override
-  _UpdateAddressScreenState createState() => _UpdateAddressScreenState();
+  _TestingpageState createState() => _TestingpageState();
 }
 
-class _UpdateAddressScreenState extends State<UpdateAddressScreen> {
-  final String userId = 'hRLvJBry4MLyNqOrJwx7'; // Replace with your user ID
-  final AddressRepository _addressRepository = AddressRepository();
-   List<Object> _currentAddresses = [];
+class _TestingpageState extends State<Testingpage> {
+  final TextEditingController _phoneController = TextEditingController();
+  UserData? _userData;
+  String? _errorMessage;
+  final UserRepository _userRepository = UserRepository();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadAddresses();
-  }
+  Future<void> _loginWithPhoneNumber() async {
+    final phoneno = _phoneController.text.trim();
 
-  Future<void> _loadAddresses() async {
-    try {
-      List<Object> addresses = await _addressRepository.fetchCurrentAddresses(userId);
+    if (phoneno.isEmpty) {
       setState(() {
-        _currentAddresses = addresses;
+        _errorMessage = 'Please enter a phone number';
+      });
+      return;
+    }
+
+    setState(() {
+      _userData = null;
+      _errorMessage = null;
+    });
+
+    try {
+      final userData = await _userRepository.loginwithphoneNumber(phoneno);
+      setState(() {
+        _userData = userData;
+      });
+    } on NoInternetException catch (e) {
+      setState(() {
+        _errorMessage = e as String?;
+      });
+    } on FetchDataException catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
       });
     } catch (e) {
-      print('Error loading addresses: $e');
       setState(() {
-        _currentAddresses = [];
+        _errorMessage = 'An unexpected error occurred';
       });
     }
   }
@@ -36,25 +55,31 @@ class _UpdateAddressScreenState extends State<UpdateAddressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Addresses'),
+        title: Text('Login with Phone Number'),
       ),
-      body: _currentAddresses.isEmpty
-          ? Center(
-        child:CircularProgressIndicator(),
-      )
-          : ListView.builder(
-        itemCount: _currentAddresses.length,
-        itemBuilder: (context, index) {
-          // Assuming each item is a String
-          String address = _currentAddresses[index] as String;
-          return Card(
-            margin: EdgeInsets.all(10),
-            child: ListTile(
-              title: Text('Address ${index + 1}:'),
-              subtitle: Text(address),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _phoneController,
+              decoration: InputDecoration(labelText: 'Phone Number'),
+              keyboardType: TextInputType.phone,
             ),
-          );
-        },
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _loginWithPhoneNumber,
+              child: Text('Login'),
+            ),
+            SizedBox(height: 20),
+            if (_userData != null) ...[
+              Text('Name: ${_userData?.data?.name}'),
+              Text('id: ${_userData?.id}'),
+            ],
+            if (_errorMessage != null)
+              Text(_errorMessage!, style: TextStyle(color: Colors.red)),
+          ],
+        ),
       ),
     );
   }

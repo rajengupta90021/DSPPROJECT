@@ -216,7 +216,7 @@ class _UserprofileState extends State<Userprofile> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             StreamBuilder<List<childmember>>(
-              stream: _repository.getAllChildMembers(userId!),
+              stream: userId == null ? Stream.empty() : _repository.getAllChildMembers(userId!),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());

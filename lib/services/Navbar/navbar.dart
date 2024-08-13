@@ -17,6 +17,7 @@ import '../../provider/CartProvider.dart';
 import '../../provider/ProviderData.dart';
 
 import '../../provider/controller/loginController.dart';
+import '../../widgets/SnackBarUtils.dart';
 import '../../widgets/loginAndLoginLater.dart';
 import '../BottomNavigationfooter/NavigationMenu.dart';
 import '../auth/login_screen.dart';
@@ -291,6 +292,7 @@ class _NavBarState extends State<NavBar> {
                       auth.signOut();
                       SessionController().userId = '';
                        print("user id before logout ${await _sharedPreferencesService.getUserId()}");
+
                       await _sharedPreferencesService.remove();
                       await loginController.remove();
                       userimagecontroller.clearImage();
@@ -300,10 +302,14 @@ class _NavBarState extends State<NavBar> {
 
                       // Clear cart data
                       await cartProvider.clearCart();
-                      Utils().toastmessage("logout successfully", Colors.green);
+                      SnackBarUtils.showSuccessSnackBar(
+                        context,
+                          "logout successfully",
+                      );
                       Navigator.push(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
                     } else {
-                      Utils().toastmessage("please login here ", Colors.red);
+
+                      SnackBarUtils.showErrorSnackBar(context, "please login here ");
                       Navigator.push(context, MaterialPageRoute(builder: (context) => loginscreen()));
                     }
                   },

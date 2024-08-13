@@ -130,9 +130,12 @@ class _AddFamilyMember2State extends State<UserProflieEditPage> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
                         labelText: 'Mobile Number',
                         prefixText: '+91 ',
+
+                        hintStyle: TextStyle(color: Colors.grey.shade600),
                         prefixStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                       ),
                       keyboardType: TextInputType.phone,
+                      readOnly: true,
                        // Limit input to 13 characters (+, country code, and 10 digits)
                       validator: (value) {
                         if (value == null || value.isEmpty) {

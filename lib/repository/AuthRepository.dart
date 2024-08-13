@@ -79,6 +79,40 @@ class UserRepository {
     }
   }
 
+  // login with phone numebr
+
+  Future<UserData?> loginwithphoneNumber(String phoneno) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/get_user_by_mob'),
+        body: jsonEncode({'mobile': phoneno}),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(
+        const Duration(seconds: 10), // Set your desired timeout duration
+        onTimeout: () {
+          throw TimeoutException('The connection timed out');
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Handle successful login
+        final responseData = jsonDecode(response.body);
+        print("user data from user repository : $responseData");
+
+        // Assuming UserData.fromJson(responseData) parses the JSON correctly
+        return UserData.fromJson(responseData);
+      } else {
+        // Handle other status codes
+        print('Login failed with status code: ${response.statusCode}');
+        return null; // Return null or appropriate value
+      }
+    } on SocketException {
+      throw NoInternetException('no internet connection ');
+    }on TimeoutException {
+      throw FetchDataException('Network Request time out');
+    }
+  }
+
   static const String _apiUrl = 'https://us-central1-dsp-backend.cloudfunctions.net/api/update_user';
 
   Future<UserData?> updateUser({

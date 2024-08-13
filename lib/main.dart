@@ -24,19 +24,31 @@ import 'helper/Internet.dart';
 
 void main() async {
 
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp(
+  //   // name: 'dspuiproject',
+  //   options: const FirebaseOptions(
+  //     apiKey: "AIzaSyBLdJ9CVaGPEmnKcuzhOsHMFJX-mrxXyFM",
+  //     // authDomain: "dspuiproject-cd859.firebaseapp.com",
+  //     projectId: "dspuiproject-cd859",
+  //     storageBucket: "dspuiproject-cd859.appspot.com",
+  //     // storageBucket: "gs://dspuiproject-cd859.appspot.com",
+  //     messagingSenderId: "526547045932",
+  //     appId: "1:526547045932:android:f133058d57168d907c4b89",
+  //   ),
+  // );
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    // name: 'dspuiproject',
+    // name: 'DSPMAIN',
     options: const FirebaseOptions(
-      apiKey: "AIzaSyBLdJ9CVaGPEmnKcuzhOsHMFJX-mrxXyFM",
-      // authDomain: "dspuiproject-cd859.firebaseapp.com",
-      projectId: "dspuiproject-cd859",
-      storageBucket: "dspuiproject-cd859.appspot.com",
-      // storageBucket: "gs://dspuiproject-cd859.appspot.com",
-      messagingSenderId: "526547045932",
-      appId: "1:526547045932:android:f133058d57168d907c4b89",
+      apiKey: "AIzaSyCBQdQ1Ok9JJI4H1wTfu0ILM1wEWfACHms",
+      appId: "1:168903079919:android:118fcafb7d3f957ec8e81a",
+      messagingSenderId: "168903079919",
+      projectId: "dspmain-81494",
+      storageBucket: "dspmain-81494.appspot.com",
     ),
   );
+
   SharedPreferences   prefs = await SharedPreferences.getInstance();
   await AwesomeNotifications().initialize( 'resource://drawable/launcher_icon', [
     NotificationChannel(

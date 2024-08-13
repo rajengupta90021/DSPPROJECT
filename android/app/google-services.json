@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "526547045932",
-    "project_id": "dspuiproject-cd859",
-    "storage_bucket": "dspuiproject-cd859.appspot.com"
+    "project_number": "168903079919",
+    "project_id": "dspmain-81494",
+    "storage_bucket": "dspmain-81494.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:526547045932:android:f133058d57168d907c4b89",
+        "mobilesdk_app_id": "1:168903079919:android:118fcafb7d3f957ec8e81a",
         "android_client_info": {
           "package_name": "com.rajen.dspuiproject"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBLdJ9CVaGPEmnKcuzhOsHMFJX-mrxXyFM"
+          "current_key": "AIzaSyCBQdQ1Ok9JJI4H1wTfu0ILM1wEWfACHms"
         }
       ],
       "services": {
