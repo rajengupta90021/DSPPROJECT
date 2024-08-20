@@ -27,8 +27,6 @@ class _searchbarState extends State<searchbar> {
   Widget build(BuildContext context) {
     return  MaterialApp(
         debugShowCheckedModeBanner: false,
-
-
         title: 'Search City',
         theme: ThemeData(
             primarySwatch: Colors.orange
@@ -40,8 +38,7 @@ class _searchbarState extends State<searchbar> {
             appBar: EasySearchBar(
               backgroundColor: iconcolor,
 
-
-              title: const Text('search City'),
+              title: Center(child: const Text('search City')),
               onSearch: (value) => setState(() => searchValue = value),
               suggestions: _suggestions,
               // leading: IconButton(

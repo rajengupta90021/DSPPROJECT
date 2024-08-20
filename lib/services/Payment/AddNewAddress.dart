@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../Model/UserAddress.dart';
 import '../../constant/colors.dart';
 import '../../repository/UserAddressRepository.dart';
+import '../../widgets/LoadingOverlay.dart';
+import '../../widgets/SnackBarUtils.dart';
 import 'SelectAnAdress.dart';
 import 'package:http/http.dart' as http;
 class AddNewAddress extends StatefulWidget {
@@ -26,6 +28,7 @@ class _AddNewAddressState extends State<AddNewAddress> {
   String pinCodeDetails = "";// New controller for phone number
   String? userId;
   String selectedLocality = 'Yes';
+  bool loading = false;
   final AddressRepository addressRepository = AddressRepository();
   @override
   void initState() {
@@ -69,245 +72,245 @@ class _AddNewAddressState extends State<AddNewAddress> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Address'),
         backgroundColor: iconcolor,
+        centerTitle: true,
+        title: Text("add an address"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Image.asset('assets/address.png',
-                          width: 80.0, // Set the desired width
-                          height: 80.0, // Set the desired height
-                          fit: BoxFit.cover,),
-                      ),
-                      SizedBox(height: 16),
-                      Center(
-                        child: Text(
-                          'Enter your address details below:',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: address1Controller,
-                        decoration: InputDecoration(
-                          labelText: 'Address',
-                          hintText: 'Enter address line 1',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Image.asset(
+                              'assets/address.png',
+                              width: 80.0, // Set the desired width
+                              height: 80.0, // Set the desired height
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Address 1';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 26),
-                      TextFormField(
-                        controller: houseBlockController,
-                        decoration: InputDecoration(
-                          labelText: 'House/ Flat/ Block No',
-                          hintText: 'Enter house/flat/block number',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          SizedBox(height: 16),
+                          Center(
+                            child: Text(
+                              'Enter your address details below:',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter House/ Flat/ Block No';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 26),
-                      TextFormField(
-                        controller: phoneNumberController,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
-                          labelText: 'Mobile Number',
-                          prefixText: '+91 ',
-                          prefixStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a mobile number';
-                          }
-                          RegExp mobileRegex = RegExp(r'^\+?[1-9]\d{9}$');
-                          if (!mobileRegex.hasMatch(value)) {
-                            return 'Please enter a valid mobile number';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 26),
-                      TextFormField(
-                        controller: pinCodeController,
-                        decoration: InputDecoration(
-                          labelText: 'Pin Code',
-                          hintText: 'Enter pin code',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          SizedBox(height: 16),
+                          TextFormField(
+                            controller: address1Controller,
+                            decoration: InputDecoration(
+                              labelText: 'Address',
+                              hintText: 'Enter address line 1',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter Address 1';
+                              }
+                              return null;
+                            },
                           ),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Pin Code';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 25),
-                      TextFormField(
-                        controller: areaCityController,
-                        decoration: InputDecoration(
-                          labelText: 'City Name',
-                          hintText: 'Enter area or city',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          SizedBox(height: 26),
+                          TextFormField(
+                            controller: houseBlockController,
+                            decoration: InputDecoration(
+                              labelText: 'House/ Flat/ Block No',
+                              hintText: 'Enter house/flat/block number',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter House/ Flat/ Block No';
+                              }
+                              return null;
+                            },
                           ),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Area, City Name';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 26),
-                      TextFormField(
-                        controller: stateController,
-                        decoration: InputDecoration(
-                          labelText: 'State Name',
-                          hintText: 'Enter state name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          SizedBox(height: 26),
+                          TextFormField(
+                            controller: phoneNumberController,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+                              labelText: 'Mobile Number',
+                              prefixText: '+91 ',
+                              prefixStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                            ),
+                            keyboardType: TextInputType.phone,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a mobile number';
+                              }
+                              RegExp mobileRegex = RegExp(r'^\+?[1-9]\d{9}$');
+                              if (!mobileRegex.hasMatch(value)) {
+                                return 'Please enter a valid mobile number';
+                              }
+                              return null;
+                            },
                           ),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter State Name';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 26),
-                      DropdownButtonFormField<String>(
-                        value: selectedLocality,
-                        decoration: InputDecoration(
-                          labelText: 'Locality',
-                          hintText: 'Select locality',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          SizedBox(height: 26),
+                          TextFormField(
+                            controller: pinCodeController,
+                            decoration: InputDecoration(
+                              labelText: 'Pin Code',
+                              hintText: 'Enter pin code',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            keyboardType: TextInputType.phone,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter Pin Code';
+                              }
+                              return null;
+                            },
                           ),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                        items: ['Yes', 'No'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            localityController.text = newValue!;
-                            selectedLocality = newValue!;
-                            localityController.text = newValue;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select a locality option';
-                          }
-                          return null;
-                        },
+                          SizedBox(height: 25),
+                          TextFormField(
+                            controller: areaCityController,
+                            decoration: InputDecoration(
+                              labelText: 'City Name',
+                              hintText: 'Enter area or city',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter Area, City Name';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 26),
+                          TextFormField(
+                            controller: stateController,
+                            decoration: InputDecoration(
+                              labelText: 'State Name',
+                              hintText: 'Enter state name',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter State Name';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 26),
+                          DropdownButtonFormField<String>(
+                            value: selectedLocality,
+                            decoration: InputDecoration(
+                              labelText: 'Locality',
+                              hintText: 'Select locality',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            items: ['Yes', 'No'].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                localityController.text = newValue!;
+                                selectedLocality = newValue!;
+                                localityController.text = newValue;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please select a locality option';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 26),
+                        ],
                       ),
-                      SizedBox(height: 26),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        setState(() {
+                          loading = true;
+                        });
 
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false, // Prevent dismiss on tap outside
-                    builder: (BuildContext context) {
-                      return Center(
-                        child: CircularProgressIndicator(), // Loading indicator
-                      );
+                        String addressDetails =
+                            '${address1Controller.text}\n'
+                            '${houseBlockController.text}\n'
+                            '${phoneNumberController.text}\n'
+                            '${pinCodeController.text}\n'
+                            '${areaCityController.text}\n'
+                            '${stateController.text}\n'
+                            '${localityController.text}';
+
+                        // Print the concatenated string with new lines
+                        print(addressDetails);
+                        print(localityController.text);
+                        bool address = await addressRepository.CreateOrUpdate(userId!, addressDetails);
+                        if (address) {
+                          setState(() {
+                            loading = false;
+                          });
+                          SnackBarUtils.showSuccessSnackBar(context, "Address saved successfully");
+                          Navigator.pop(context, address);
+                        } else {
+                          setState(() {
+                            loading = false;
+                          });
+                          SnackBarUtils.showErrorSnackBar(context, "Failed to save address");
+                        }
+                      }
                     },
-                  );
-                  await Future.delayed(Duration(seconds: 2));
-                  // Print all field values
-                  String addressDetails =
-                      '${address1Controller.text}\n'
-                      '${houseBlockController.text}\n'
-                      '${phoneNumberController.text}\n'
-                      '${pinCodeController.text}\n'
-                      '${areaCityController.text}\n'
-                      '${stateController.text}\n'
-                      '${localityController.text}';
-
-                  // Print the concatenated string with new lines
-                  print(addressDetails);
-                  print(localityController.text);
-                  bool address = await addressRepository.CreateOrUpdate(userId!, addressDetails);
-                  if (address) {
-
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Address saved successfully')),
-                    );
-                    Navigator.pop(context,address);
-
-                    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SelectAnAddress()),result: (route) => false,);
-
-                  } else {
-                    // Failed to create address
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed to save address')),
-                    );
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 110, vertical: 15),
-                backgroundColor: iconcolor,
-              ),
-              child: Text(
-                'Save Address',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold),
-              ),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 110, vertical: 15),
+                      backgroundColor: iconcolor,
+                    ),
+                    child: Text(
+                      'Save Address',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (loading) LoadingOverlay(isLoading: loading), // Overlay for loading
+        ],
       ),
     );
   }
+
   Future<void> getDataFromPinCode(String pinCode) async {
     final url = "http://www.postalpincode.in/api/pincode/$pinCode";
 
@@ -319,7 +322,7 @@ class _AddNewAddressState extends State<AddNewAddress> {
 
         if (jsonResponse['Status'] == 'Error') {
           // Show a snackbar if the PIN code is not valid
-          showSnackbar(context, "Pin Code is not valid. ");
+          SnackBarUtils.showErrorSnackBar(context, "Pin Code is not valid.");
           setState(() {
             pinCodeDetails = 'Pin code is not valid.';
           });
@@ -341,28 +344,17 @@ class _AddNewAddressState extends State<AddNewAddress> {
         }
       } else {
         // Show a snackbar if there is an issue fetching data
-        showSnackbar(context, "Failed to fetch data. Please try again");
+        SnackBarUtils.showErrorSnackBar(context, "Failed to fetch data. Please try again.");
         setState(() {
           pinCodeDetails = 'Failed to fetch data. Please try again.';
         });
       }
     } catch (e) {
       // Show a snackbar if an error occurs during the API call
-      showSnackbar(context, "Error Occurred. Please try again");
+      SnackBarUtils.showErrorSnackBar(context, "Error Occurred. Please try again.");
       setState(() {
         pinCodeDetails = 'Error occurred. Please try again.';
       });
     }
   }
-
-  // Function to display a snackbar with a specified message
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: Duration(seconds: 2), // Adjust the duration as needed
-      ),
-    );
-  }
-
 }

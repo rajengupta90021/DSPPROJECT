@@ -22,6 +22,7 @@ import '../../widgets/loginAndLoginLater.dart';
 import '../BottomNavigationfooter/NavigationMenu.dart';
 import '../auth/login_screen.dart';
 import 'AccountSetting/AccountSettingpage.dart';
+import 'AccountSetting/MyOrder.dart';
 import 'Navbar_Subscription.dart';
 import 'ReportandIssue.dart';
 
@@ -198,8 +199,17 @@ class _NavBarState extends State<NavBar> {
           ListTile(
             leading: Icon(Icons.shopping_bag), // Add icon for My Order
             title: Text('My Order'),
-            onTap: () {
-              // Handle tap on My Order
+            onTap: () async {
+              bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
+              if (isLoggedIn) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyOrderDetails()),
+                );
+              } else {
+                Navigator.pop(context); // Close the drawer
+                LoginandLoginLaterpage.show(context, 'My Order');
+              }
             },
           ),
           ListTile(
@@ -306,7 +316,10 @@ class _NavBarState extends State<NavBar> {
                         context,
                           "logout successfully",
                       );
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => NavigationMenu()),
+                            (route) => false, // Removes all previous routes
+                      );
                     } else {
 
                       SnackBarUtils.showErrorSnackBar(context, "please login here ");

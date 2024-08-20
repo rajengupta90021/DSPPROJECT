@@ -9,6 +9,8 @@ import '../../Model/ChildMember.dart';
 import '../../SharedPreferecneService/SharedPreferenceSerivice.dart';
 import '../../constant/colors.dart';
 import '../../repository/ChildMemberRepository.dart';
+import '../../widgets/LoadingOverlay.dart';
+import '../../widgets/SnackBarUtils.dart';
 import '../BottomNavigationfooter/NavigationMenu.dart';
 
 class AddFamilyMember2 extends StatefulWidget {
@@ -25,7 +27,6 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
   TextEditingController fullNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController genderController = TextEditingController();
-
   String? userId;
   final formkey = GlobalKey<FormState>();
   SharedPreferencesService SharedPreferencesServicee = SharedPreferencesService();
@@ -97,7 +98,7 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                       decoration: InputDecoration(
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
                         labelText: 'Mobile Number',
-                        prefixText: '+',
+                        prefixText: '+91 ',
                         prefixStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                       ),
                       keyboardType: TextInputType.phone,
@@ -266,47 +267,41 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                try{
                  printFormData();
 
-
-                 ChildMemberRepositoryy.createUserChild( parentId: userId ?? '',
+                 showDialog(
+                   context: context,
+                   barrierDismissible: false, // Prevent dismiss on tap outside
+                   builder: (BuildContext context) {
+                     return Center(
+                       child: CircularProgressIndicator(), // Loading indicator
+                     );
+                   },
+                 );
+               final resposne =  ChildMemberRepositoryy.createUserChild( parentId: userId ?? '',
                    name: fullNameController.text,
                    email: emailController.text,
                    mobile: mobileNumberController.text,
                    relation: dropdownValue ?? '',
                    address: "",);
 
-                 Fluttertoast.showToast(
-                   msg: 'User child created successfully',
-                   toastLength: Toast.LENGTH_SHORT,
-                   gravity: ToastGravity.BOTTOM,
-                   timeInSecForIosWeb: 1,
-                   backgroundColor: Colors.green,
-                   textColor: Colors.white,
-                   fontSize: 16.0,
-                 );
 
-                 await Future.delayed(Duration(seconds: 3));
+                 await Future.delayed(Duration(seconds: 2));
+                 // SnackBarUtils.showSuccessSnackBar(
+                 //   context,
+                 //   "User child created successfully",
+                 // );
+                 SnackBarUtils.showSuccessSnackBar(context,   "User child created successfully");
+                 Navigator.of(context).pop();
                  // Navigator.push(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
                  Navigator.of(context).pop();
                }
                catch(e){
                  print('Error creating user child: $e');
-                 Fluttertoast.showToast(
-                   msg: 'Failed to create user child',
-                   toastLength: Toast.LENGTH_SHORT,
-                   gravity: ToastGravity.BOTTOM,
-                   timeInSecForIosWeb: 1,
-                   backgroundColor: Colors.red,
-                   textColor: Colors.white,
-                   fontSize: 16.0,
-                 );
+                 SnackBarUtils.showErrorSnackBar(context, "Failed to create user child");
                }
 
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Please fill all required fields.'),
-                ),
-              );
+
+              SnackBarUtils.showErrorSnackBar(context,"Please fill all required fields.");
             }
           },
           label: Text('ADD PATIENT', style: TextStyle(color: Colors.black, fontSize: 19)),

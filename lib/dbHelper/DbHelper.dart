@@ -3,6 +3,7 @@ import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 
+import '../Model/MyOrder.dart';
 import '../Model/TestInformation.dart';
 
 class DbHelper{
@@ -68,4 +69,120 @@ Future<List<TestCart>> getCartList() async {
     final dbb = await db;
     await dbb?.delete('cart2'); // Adjust the table name if different
   }
+}
+
+
+
+
+class DBHelperOrder {
+  static Database? _database;
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDb();
+    return _database!;
+  }
+  Future<Database> _initDb() async {
+    return openDatabase(
+      join(await getDatabasesPath(), 'your_database.db'),
+      onCreate: (db, version) {
+        return db.execute(
+          'CREATE TABLE orders('
+              'orderId TEXT PRIMARY KEY, '
+              'userId TEXT, '
+              'username TEXT, '
+              'email TEXT, '
+              'password TEXT, '
+              'mobile TEXT, '
+              'profileImg TEXT, '
+              'role TEXT, '
+              'createdAt TEXT, '
+              'updatedAt TEXT, '
+              'childName TEXT, '
+              'childUserRelation TEXT, '
+              'childUserPhone TEXT, '
+              'childUserDob TEXT, '
+              'parentChildUserAddress TEXT, '
+              'childUserHouseNo TEXT, '
+              'childUserPinCode TEXT, '
+              'childUserCity TEXT, '
+              'childUserState TEXT, '
+              'selectedDate TEXT, '
+              'startTime TEXT, '
+              'endTime TEXT, '
+              'totalAmount REAL, '
+              'cartItems TEXT, '
+              'orderStatus TEXT, '
+              'paymentStatus TEXT, '
+              'deliveryDate TEXT'
+              ')',
+        );
+      },
+      onUpgrade: (db, oldVersion, newVersion) {
+        if (oldVersion < 2) {
+          db.execute('ALTER TABLE orders ADD COLUMN orderStatus TEXT');
+          db.execute('ALTER TABLE orders ADD COLUMN paymentStatus TEXT');
+          db.execute('ALTER TABLE orders ADD COLUMN deliveryDate TEXT');
+        }
+      },
+      version: 2, // Increment version to trigger onUpgrade
+    );
+  }
+
+
+  Future<void> insertOrder(Order order) async {
+    final db = await database;
+    await db.insert(
+      'orders',
+      order.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getOrders(String userId) async {
+    final db = await database;
+    return await db.query('orders', where: 'userId = ?', whereArgs: [userId]);
+  }
+
+  Future<Order?> getOrderById(String orderId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'orders',
+      where: 'orderId = ?',
+      whereArgs: [orderId],
+    );
+    if (maps.isNotEmpty) {
+      return Order.fromMap(maps.first);
+    }
+    return null;
+  }
+
+
+  Future<void> updateOrder({
+    required String orderId,
+    required String orderStatus,
+    required String paymentStatus,
+    required DateTime deliveryDate,
+  }) async {
+    final db = await database;
+    await db.update(
+      'orders',
+      {
+        'orderStatus': orderStatus,
+        'paymentStatus': paymentStatus,
+        'deliveryDate': deliveryDate.toIso8601String(),
+      },
+      where: 'orderId = ?',
+      whereArgs: [orderId],
+    );
+  }
+  Future<void> deleteOrder(String orderId) async {
+    final db = await database;
+    await db.delete(
+      'orders',
+      where: 'orderId = ?',
+      whereArgs: [orderId],
+    );
+  }
+
 }

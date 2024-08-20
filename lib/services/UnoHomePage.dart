@@ -32,6 +32,7 @@ import '../provider/SelectedMemberProvider.dart';
 import '../provider/controller/loginController.dart';
 import '../widgets/HelpMeBookTest.dart';
 import '../widgets/ShimmerEffect.dart';
+import '../widgets/SnackBarUtils.dart';
 import '../widgets/rounded_botton.dart';
 import 'BookingTest3.dart';
 import 'BottomNavigationfooter/NavigationMenu.dart';
@@ -127,6 +128,24 @@ class _UnoHomePageState extends State<UnoHomePage> {
     });
   }
 
+  DateTime? _lastBackPressed;
+
+  Future<bool> _handleBackPressed() async {
+    final now = DateTime.now();
+    if (_lastBackPressed == null || now.difference(_lastBackPressed!) > Duration(seconds: 2)) {
+      // If this is the first press or more than 2 seconds have passed
+      _lastBackPressed = now;
+
+      SnackBarUtils.shownormalSnackBar(
+        context,
+        "Double click to exit the app",
+      );
+      return Future.value(false); // Prevent default back navigation
+    } else {
+      // If the user double-clicked within 2 seconds, exit the app
+      return Future.value(true); // Allow the back navigation to proceed
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final auth = FirebaseAuth.instance;
@@ -138,8 +157,10 @@ class _UnoHomePageState extends State<UnoHomePage> {
     // final ref = FirebaseDatabase.instance.ref('User');
     final internetProvider = Provider.of<InternetChickingProvider>(context);
     print(" checking from provider ${internetProvider.isConnected}");
-      return PopScope(
-    canPop: false,
+      return WillPopScope(
+        onWillPop: _handleBackPressed,
+        // PopScope(
+        //     canPop: false
       child: Scaffold(
         drawer: NavBar(),
         appBar: AppBar(
@@ -158,8 +179,8 @@ class _UnoHomePageState extends State<UnoHomePage> {
               color: Colors.black, // Adjust the text color as needed
             ),
           ),
-      
-      
+
+
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(0), // Adjust the height of the border
             child: Container(
@@ -195,34 +216,6 @@ class _UnoHomePageState extends State<UnoHomePage> {
                 ),
               ),
             ),
-            // IconButton(
-            //   icon: Image.asset(
-            //     'assets/power.png',  // Replace 'assets/your_image.png' with your actual image path
-            //     width: 28,
-            //     height: 28,
-            //     fit: BoxFit.contain,  // Adjust the fit as per your requirement
-            //   ),
-            //   onPressed: () async {
-            //     bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
-            //     if (isLoggedIn) {
-            //       // User is logged in, perform logout
-            //       auth.signOut();
-            //       SessionController().userId='';
-            //       print("user id before logout ${await _sharedPreferencesService.getUserId()}");
-            //       await _sharedPreferencesService.remove();
-            //       await loginController.remove();
-            //       print("user ifd deleted ${isLoggedIn}");
-            //       print("user id after logout ${await _sharedPreferencesService.getUserId()}");
-            //
-            //       Utils().toastmessage("logout successfully", Colors.green);
-            //       Navigator.push(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
-            //     } else {
-            //       // User is not logged in, navigate to login screen
-            //       Utils().toastmessage("please login here ", Colors.red);
-            //       Navigator.push(context, MaterialPageRoute(builder: (context) => loginscreen()));
-            //     }
-            //   },
-            // ),
           ],
         ),
         body: Padding(
@@ -230,7 +223,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-      
+
                 Container(
                   height: 50,
                   decoration: BoxDecoration(
@@ -284,12 +277,14 @@ class _UnoHomePageState extends State<UnoHomePage> {
                     ],
                   ),
                 ),
-      
+
                 SizedBox(height: 10),
-      
-      
+
+
                Consumer<SelectedMemberProvider>(
                    builder: (context,provider,_){
+                     String name = provider.name ?? "user";
+                     String truncatedName = name.length > 8 ? '${name.substring(0, 8)}...' : name;
                      return  Container(
                        height: 50,
                        // decoration: BoxDecoration(
@@ -301,7 +296,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                          children: [
                            InkWell(
                              onTap:(){
-      
+
                              Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingTest3()));
                             },
                              child: Container(
@@ -315,12 +310,16 @@ class _UnoHomePageState extends State<UnoHomePage> {
                                child: Stack(
                                  children: [
                                    Center(
-                                     child: Text(
-                                       provider.name ?? 'User',
-                                       textAlign: TextAlign.center,
-                                       style: TextStyle(
-                                           color: Colors.black,
-                                           fontSize: 12,fontWeight: FontWeight.bold // Adjust the font size as needed
+                                     child: FittedBox(
+                                       fit: BoxFit.scaleDown,
+                                       child: Text(
+                                         truncatedName,
+                                         textAlign: TextAlign.center,
+                                         overflow: TextOverflow.ellipsis,
+                                         style: TextStyle(
+                                             color: Colors.black,
+                                             fontSize: 15,fontWeight: FontWeight.bold // Adjust the font size as needed
+                                         ),
                                        ),
                                      ),
                                    ),
@@ -328,7 +327,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                                ),
                              ),
                            ),
-      
+
                            SizedBox(width: 5),
                            // Container(
                            //   width: 40,
@@ -352,11 +351,17 @@ class _UnoHomePageState extends State<UnoHomePage> {
                            //     ],
                            //   ),
                            // ),
-      
+
                            Spacer(), // This widget will push the following widgets to the rightmost side
                            InkWell(
-                             onTap: (){
-                               Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyMember2()));
+                             onTap: () async {
+                               bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
+                               if (isLoggedIn) {
+                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyMember2()));
+
+                               } else {
+                                 LoginandLoginLaterpage.show(context, 'family member');
+                               }
                              },
                              child: Container(
                                width: 40,
@@ -376,15 +381,15 @@ class _UnoHomePageState extends State<UnoHomePage> {
                        ),
                      );
                    }
-      
+
                ),
-      
+
                 SizedBox(height: 10),
                 CarouselSlider.builder(
                   itemCount: imgList.length,
                   options: CarouselOptions(
                     height: 120,
-      
+
                     aspectRatio: 16 / 9,
                     viewportFraction: 0.8,
                     initialPage: 1,
@@ -442,16 +447,16 @@ class _UnoHomePageState extends State<UnoHomePage> {
                   },
                 ),
                 SizedBox(height: 10),
-      
+
                 InkWell(
                   onTap: () async {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Testingpage(), // Corrected builder syntax
+                        builder: (context) => OrdersScreen( userId: _userId,), // Corrected builder syntax
                       ),
                     );
-      
+
                   },
                   child: Container(
                     height: 100,
@@ -485,7 +490,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                                   height: 40,
                                   fit: BoxFit.contain,  // Adjust the fit as per your requirement
                                 ),
-      
+
                                 Text(
                                   'Find a Center',
                                   textAlign: TextAlign.center,
@@ -500,12 +505,12 @@ class _UnoHomePageState extends State<UnoHomePage> {
                           ),
                         ),
                         SizedBox(width: 4),
-      
+
                         InkWell(
                           onTap: () async {
                             bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
                             if(isLoggedIn){
-      
+
                             //   TestRepository repository = TestRepository();
                             // CategegoryRepository cat =    CategegoryRepository();
                             //
@@ -519,13 +524,13 @@ class _UnoHomePageState extends State<UnoHomePage> {
                             //   } catch (e) {
                             //     print('Failed to fetch test info: $e');
                             //   }
-      
-      
+
+
                               Navigator.push(context, MaterialPageRoute(builder: (context)=>HelpMeBookTestPage()));
-      
+
                             }else{
                               // Navigator.pop(context);
-      
+
                               LoginandLoginLaterpage.show(context, "not sure about test ");
                             }
                           },
@@ -549,7 +554,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                                     height: 40,
                                     fit: BoxFit.contain,  // Adjust the fit as per your requirement
                                   ),
-      
+
                                   Text(
                                     'Not sure about test',
                                     textAlign: TextAlign.center,
@@ -569,8 +574,8 @@ class _UnoHomePageState extends State<UnoHomePage> {
                   ),
                 ),
                 SizedBox(height: 8),
-      
-      
+
+
                 Container(
                   width: 600,
                   height: 140,
@@ -601,7 +606,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                         'assets/hemotology.png',
                         'assets/biochemistry.png',
                       ];
-      
+
                       return GridView.count(
                         scrollDirection: Axis.horizontal,
                         crossAxisCount: 1, // Number of columns in the grid
@@ -612,7 +617,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                           int index = entry.key;
                           String category = entry.value.toUpperCase();
                           String imagePath = categoryImages[index % categoryImages.length];
-      
+
                           Offset offset;
                           if (index == 2) {
                             offset = Offset(0, 8); // Shift item at index 2 down by 8 units
@@ -658,7 +663,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
-                              
+
                                       ),
                                     ),
                                   ],
@@ -671,18 +676,18 @@ class _UnoHomePageState extends State<UnoHomePage> {
                     },
                   ),
                 ),
-      
-      
-      
-      
-      
-      
-      
-      
+
+
+
+
+
+
+
+
                 SizedBox(height: 2),
-      
+
                 Container(
-      
+
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
                     color: Colors.white,
@@ -776,16 +781,16 @@ class _UnoHomePageState extends State<UnoHomePage> {
                   ),
                 ),
                 SizedBox(height: 10),
-      
-      
-      
-      
-      
+
+
+
+
+
                 // SizedBox(height: 10),
-      
-      
-      
-      
+
+
+
+
               ],
             ),
           ),

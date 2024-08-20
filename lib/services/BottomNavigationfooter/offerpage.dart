@@ -20,13 +20,11 @@ class _offerpageState extends State<offerpage> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      drawer: NavBar(),
+      // drawer: NavBar(),
       appBar: AppBar(
         backgroundColor: iconcolor,
-        title: Padding(
-          padding: const EdgeInsets.only(right: 60),
-          child: Center(child: Text('Offers')),
-        ),
+        centerTitle: true,
+        title: Text('Offers'),
       ),
       body: Container(
         // Your content for the Offers page

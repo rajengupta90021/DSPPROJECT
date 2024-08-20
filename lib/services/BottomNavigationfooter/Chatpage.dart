@@ -17,11 +17,9 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: iconcolor,
-        title: Padding(
-          padding: const EdgeInsets.only(right: 60),
-          child: Center(child: Text('chat')),
-        ),
+        title: Text('chat'),
       ),
       body: Container(
         // Your content for the Offers page

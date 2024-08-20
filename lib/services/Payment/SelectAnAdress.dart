@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../Model/UserAddress.dart';
 import '../../provider/AddressControlller.dart';
 import '../../repository/UserAddressRepository.dart';
+import '../../widgets/SnackBarUtils.dart';
 import 'AddNewAddress.dart';
 
 import '../family_member_widgets/FamilyMember.dart';
@@ -205,13 +206,11 @@ class _SelectAnAddressState extends State<SelectAnAddress> {
                                                   setState(() {
                                                     _addresses.remove(addressData);
                                                   });
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text('Address deleted successfully')),
-                                                  );
+                                                  SnackBarUtils.showSuccessSnackBar(context, "Address deleted successfully");
+
                                                 } else {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text('Failed to delete address')),
-                                                  );
+                                                  SnackBarUtils.showErrorSnackBar(context, "Failed to delete address");
+
                                                 }
                                                 Navigator.of(context).pop();
                                               },
@@ -287,16 +286,12 @@ class _SelectAnAddressState extends State<SelectAnAddress> {
           onPressed: () async {
 
             if (_addresses.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('No addresses available please add address')),
-              );
+              SnackBarUtils.shownormalSnackBar(context, "No addresses available please add address");
             } else if (_selectedAddressId == null || _selectedAddressId!.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Please select an address or add new address')),
-              );
+
+              SnackBarUtils.shownormalSnackBar(context, "Please select an address or add new address");
+
             } else {
-
-
 
               Navigator.push(
                 context,

@@ -1,10 +1,13 @@
-import 'package:dspuiproject/services/Payment/PaymentScreen.dart';
+import 'dart:convert';
+
 import 'package:dspuiproject/services/Payment/SelectAnAdress.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Model/ChildMember.dart';
+import '../../Model/MyOrder.dart';
 import '../../Model/TestInformation.dart';
 import '../../dbHelper/DbHelper.dart';
 import '../../provider/AddressControlller.dart';
@@ -29,6 +32,41 @@ class ReviewOrder extends StatefulWidget {
 
 class _ReviewOrderState extends State<ReviewOrder> {
   DbHelper dbHelper = DbHelper();
+
+  String? _userId;
+  String? _username;
+  String? _email;
+  String? _password;
+  String? _mobile;
+  String ?_profileImg;
+  String? _role;
+  String? _createdAt;
+  String? _updatedAt;
+  // /*********************
+  String? Childname;
+  String? childuserRelation;
+  String? ChilduserPhone;
+  String? childuserdob;
+  String? Childusergender;
+  String? ParentchilduserAddress;
+  String? childuserHouseNo;
+  String? childuserPinCode;
+  String? childuserCity;
+  String? childuserState;
+  // **********************
+  DateTime? selectedDate;
+  String? startTime;
+  String? endTime;
+  // *******************
+  double? totalAmount;
+  late Future<List<TestCart>> _cartFuture;
+  DBHelperOrder DBHelperOrderr= DBHelperOrder();
+
+  @override
+  void initState() {
+    super.initState();
+    _cartFuture = Provider.of<CartProvider>(context, listen: false).getData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,8 +147,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
     );
   }
 
-  Widget _buildCartContent(BuildContext context, List<TestCart> cartItems,
-      CartProvider cart) {
+  Widget _buildCartContent(BuildContext context, List<TestCart> cartItems, CartProvider cart) {
     return Column(
       children: [
         Padding(
@@ -185,6 +222,10 @@ class _ReviewOrderState extends State<ReviewOrder> {
                                       cartItem.rates!.toInt());
                                   cart.removeCounter();
                                   cart.updateAddIdValue(cartItem.id.toString());
+                                });
+                                setState(() {
+                                  // Refresh the cart data
+                                  _cartFuture = Provider.of<CartProvider>(context, listen: false).getData();
                                 });
                                 Navigator.of(context).pop(); // Close the dialog
                               },
@@ -343,25 +384,6 @@ class _ReviewOrderState extends State<ReviewOrder> {
       ),
     );
   }
-
-  // Widget _buildAddressDetails() {
-  //   // Replace with your implementation of address details widget
-  //   return Padding(
-  //     padding: const EdgeInsets.all(8.0),
-  //     child: Card(
-  //       child: ListTile(
-  //         leading: Icon(Icons.location_on, color: Colors.blue),
-  //         title: Text('NEW RAJA MANDI, KCT Trading, Raja Ki Mandi, Indi Agra, Uttar Pradesh, 282002'),
-  //         trailing: TextButton(
-  //           onPressed: () {
-  //             // Handle change address
-  //           },
-  //           child: Text('CHANGE', style: TextStyle(color: Colors.orange)),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
   Widget _buildAddressDetails() {
     return Consumer<AddressProvider>(
       builder: (context, addressProvider, child) {
@@ -522,7 +544,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
             borderRadius: BorderRadius.circular(10),
           ),
         ),
-        onPressed: () {
+        onPressed: () async {
           int counter = Provider.of<CartProvider>(context, listen: false).getcounter();
 
           if (counter == 0) {
@@ -540,7 +562,72 @@ class _ReviewOrderState extends State<ReviewOrder> {
           } else {
             // Proceed to payment logic
             print("Proceeding to payment...");
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentMethod()));
+            // _gatherAndStoreData();
+
+
+            final cartProvider = Provider.of<CartProvider>(context, listen: false);
+            final selectedMemberProvider = Provider.of<SelectedMemberProvider>(context, listen: false);
+            final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+            final dateTimeProvider = Provider.of<DateTimeProvider>(context, listen: false);
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            // Gather data
+            Childname = selectedMemberProvider.name;
+            childuserRelation = selectedMemberProvider.relation;
+            ChilduserPhone = selectedMemberProvider.phone;
+
+            ParentchilduserAddress = addressProvider.address;
+            childuserHouseNo = addressProvider.houseNo;
+            childuserPinCode = addressProvider.pinCode;
+            childuserCity = addressProvider.cityName;
+            childuserState = addressProvider.stateName;
+
+            selectedDate = dateTimeProvider.selectedDate;
+            startTime = dateTimeProvider.selectedStartTime;
+            endTime = dateTimeProvider.selectedEndTime;
+
+            _userId = prefs.getString('user_id') ?? '';
+            _username = prefs.getString('name') ?? '';
+            _email = prefs.getString('email') ?? '';
+            _password = prefs.getString('password') ?? '';
+            _mobile = prefs.getString('mobile') ?? '';
+            _profileImg = prefs.getString('profile_img') ?? '';
+            _role = prefs.getString('role') ?? '';
+            _createdAt = prefs.getString('created_at') ?? '';
+            _updatedAt = prefs.getString('updated_at') ?? '';
+            // Total amount
+            totalAmount = cartProvider.getTotalPrice().toDouble();
+            List<TestCart> cartItems = await _cartFuture;
+            List<Map<String, dynamic>> cartItemsJson = cartItems.map((item) => item.toMap()).toList();
+            String cartItemsString = jsonEncode(cartItemsJson);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PaymentMethod(
+                  userId: _userId,
+                  username: _username,
+                  email: _email,
+                  password: _password,
+                  mobile: _mobile,
+                  profileImg: _profileImg,
+                  role: _role,
+                  createdAt: _createdAt,
+                  updatedAt: _updatedAt,
+                  childName: Childname,
+                  childUserRelation: childuserRelation,
+                  childUserPhone: ChilduserPhone,
+                  parentChildUserAddress: ParentchilduserAddress,
+                  childUserHouseNo: childuserHouseNo,
+                  childUserPinCode: childuserPinCode,
+                  childUserCity: childuserCity,
+                  childUserState: childuserState,
+                  selectedDate: selectedDate ?? DateTime.now(),
+                  startTime: startTime,
+                  endTime: endTime,
+                  totalAmount: totalAmount ?? 0.0,
+                  cartItemsString: cartItemsString,
+                ),
+              ),
+            );
           }
           // Handle proceed to pay
         },
@@ -558,6 +645,99 @@ class _ReviewOrderState extends State<ReviewOrder> {
       ),
     );
 }
+
+  // Future<void> _gatherAndStoreData() async {
+  //   final cartProvider = Provider.of<CartProvider>(context, listen: false);
+  //   final selectedMemberProvider = Provider.of<SelectedMemberProvider>(context, listen: false);
+  //   final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+  //   final dateTimeProvider = Provider.of<DateTimeProvider>(context, listen: false);
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   // Gather data
+  //   Childname = selectedMemberProvider.name;
+  //   childuserRelation = selectedMemberProvider.relation;
+  //   ChilduserPhone = selectedMemberProvider.phone;
+  //
+  //   ParentchilduserAddress = addressProvider.address;
+  //   childuserHouseNo = addressProvider.houseNo;
+  //   childuserPinCode = addressProvider.pinCode;
+  //   childuserCity = addressProvider.cityName;
+  //   childuserState = addressProvider.stateName;
+  //
+  //   selectedDate = dateTimeProvider.selectedDate;
+  //   startTime = dateTimeProvider.selectedStartTime;
+  //   endTime = dateTimeProvider.selectedEndTime;
+  //
+  //   _userId = prefs.getString('user_id') ?? '';
+  //   _username = prefs.getString('name') ?? '';
+  //   _email = prefs.getString('email') ?? '';
+  //   _password = prefs.getString('password') ?? '';
+  //   _mobile = prefs.getString('mobile') ?? '';
+  //   _profileImg = prefs.getString('profile_img') ?? '';
+  //   _role = prefs.getString('role') ?? '';
+  //   _createdAt = prefs.getString('created_at') ?? '';
+  //   _updatedAt = prefs.getString('updated_at') ?? '';
+  //   // Total amount
+  //   totalAmount = cartProvider.getTotalPrice().toDouble();
+  //
+  //   print("parent parent: $_userId");
+  //   print("parent _username: $_username");
+  //   print("parent _email: $_email");
+  //   print("parent _password: $_password");
+  //   print("parent _mobile: $_mobile");
+  //   print("parent _profileImg: $_profileImg");
+  //   print("parent _role: $_role");
+  //   print("parent _createdAt: $_createdAt");
+  //   print("parent _updatedAt: $_updatedAt");
+  //
+  //   print("child Name: $Childname");
+  //   print("child Relation: $childuserRelation");
+  //   print("child Phone: $ChilduserPhone");
+  //   print("child Address: $ParentchilduserAddress");
+  //   print("House No: $childuserHouseNo");
+  //   print("Pin Code: $childuserPinCode");
+  //   print("City: $childuserCity");
+  //   print("State: $childuserState");
+  //   print("Selected Date: $selectedDate");
+  //   print("Start Time: $startTime");
+  //   print("End Time: $endTime");
+  //   print("Total Amount: $totalAmount");
+  //
+  //   List<TestCart> cartItems = await _cartFuture;
+  //   List<Map<String, dynamic>> cartItemsJson = cartItems.map((item) => item.toMap()).toList();
+  //   String cartItemsString = jsonEncode(cartItemsJson);
+  //
+  //   Order order = Order(
+  //     orderId: DateTime.now().millisecondsSinceEpoch,
+  //     userId: _userId ?? '', // Provide a default value if null
+  //     username: _username ?? '',
+  //     email: _email ?? '',
+  //     password: _password ?? '',
+  //     mobile: _mobile ?? '',
+  //     profileImg: _profileImg ?? '',
+  //     role: _role ?? '',
+  //     createdAt: _createdAt ?? '',
+  //     updatedAt: _updatedAt ?? '',
+  //     childName: Childname ?? '',
+  //     childUserRelation: childuserRelation ?? '',
+  //     childUserPhone: ChilduserPhone ?? '',
+  //     childUserDob: childuserdob ?? '',
+  //     parentChildUserAddress: ParentchilduserAddress ?? '',
+  //     childUserHouseNo: childuserHouseNo ?? '',
+  //     childUserPinCode: childuserPinCode ?? '',
+  //     childUserCity: childuserCity ?? '',
+  //     childUserState: childuserState ?? '',
+  //     selectedDate: selectedDate ?? DateTime.now(), // Format DateTime or provide default
+  //     startTime: startTime ?? '',
+  //     endTime: endTime ?? '',
+  //     totalAmount: totalAmount ?? 0.0, // Provide a default value if null
+  //     cartItems: cartItemsString,
+  //     orderStatus: 'PENDING',
+  //     paymentStatus: 'PENDING', // This should be a non-null string
+  //   );
+  //
+  //   await DBHelperOrderr.insertOrder(order);
+  //
+  // }
 
 
 }

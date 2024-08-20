@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:dspuiproject/services/UnoHomePage.dart';
+import 'package:dspuiproject/widgets/SnackBarUtils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -347,28 +348,14 @@ class _AddFamilyMember2State extends State<UserProflieEditPage> {
                 email: emailController.text,
                 mobileNumber: mobileNumberController.text,
 
-                // Add other fields as needed
               );
               Navigator.pop(context);
-              // Fluttertoast.showToast(
-              //   msg: 'User details details updated successfully',
-              //   toastLength: Toast.LENGTH_SHORT,
-              //   gravity: ToastGravity.BOTTOM,
-              //   timeInSecForIosWeb: 1,
-              //   backgroundColor: Colors.green,
-              //   textColor: Colors.white,
-              //   fontSize: 16.0,
-              // );
               await Future.delayed(Duration(seconds: 3));
               Navigator.push(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
               // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Userprofile()));
             // Navigator.pop(context);
            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Please fill all required fields.'),
-                ),
-              );
+              SnackBarUtils.showErrorSnackBar(context, "Please fill all required fields.");
             }
           },
           label: Text('SAVE', style: TextStyle(color: Colors.black, fontSize: 19)),

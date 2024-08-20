@@ -17,13 +17,11 @@ class _WalletState extends State<Wallet> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavBar(),
+      // drawer: NavBar(),
       appBar: AppBar(
+        centerTitle:  true,
         backgroundColor: iconcolor,
-        title: Padding(
-          padding: const EdgeInsets.only(right: 60),
-          child: Center(child: Text('Wallet',style: TextStyle(fontSize: 30),)),
-        ),
+        title: Text('Wallet',style: TextStyle(fontSize: 30),),
       ),
       body: Column(
         // mainAxisAlignment: MainAxisAlignment.spaceEvenly,

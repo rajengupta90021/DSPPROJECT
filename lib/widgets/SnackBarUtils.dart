@@ -30,4 +30,13 @@ class SnackBarUtils {
       ),
     );
   }
+  static void shownormalSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.black54,
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
 }

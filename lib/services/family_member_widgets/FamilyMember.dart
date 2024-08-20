@@ -25,14 +25,14 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
   childmember? memberSelected;
   final ChildMemberRepository _repository = ChildMemberRepository();
   String? userId;
-  late String? _username;
-  late String? _email;
-  late String? _password;
-  late String? _mobile;
-  late String? _profileImg;
-  late String? _role;
-  late String? _createdAt;
-  late String? _updatedAt;
+   String? _username;
+   String? _email;
+   String? _password;
+   String? _mobile;
+   String? _profileImg;
+   String? _role;
+   String? _createdAt;
+   String? _updatedAt;
   bool isLoggedIn = false;
   bool _isSelected = false;
   final SharedPreferencesService _sharedPreferencesService =
@@ -132,7 +132,7 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
           Expanded(
             child: SingleChildScrollView(
               child: FutureBuilder<List<childmember>>(
-                future: _repository.getAllChildMembersusingFutureBuilder(userId!),
+                future: _repository.getAllChildMembersusingFutureBuilder(userId ?? ''),
                 builder: (context, snapshot) {
                   // if (snapshot.connectionState == ConnectionState.waiting) {
                   //   return Center(child: CircularProgressIndicator());
@@ -142,84 +142,81 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
 
-                      return  Expanded(
+                      return  SingleChildScrollView(
 
-                        child: SingleChildScrollView(
-
-                          child: Container(
-                            height: 119,
-                            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color:  Colors.orange , // Border color changes when selected
-                                width: 2,
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                              color:  Colors.orange.withOpacity(0.1) ,
+                        child: Container(
+                          height: 119,
+                          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color:  Colors.orange , // Border color changes when selected
+                              width: 2,
                             ),
+                            borderRadius: BorderRadius.circular(20),
+                            color:  Colors.orange.withOpacity(0.1) ,
+                          ),
 
-                            child: Card(
-                              elevation: 2,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Consumer<UserImageController>(
-            
-                                          builder: (context ,imagecontorller,child){
-                                            return CircleAvatar(
-                                              backgroundColor: Colors.transparent,
-                                              radius: 30,
-                                              backgroundImage: imagecontorller.imageUrl != null && imagecontorller.imageUrl!.isNotEmpty
-                                                  ? NetworkImage(imagecontorller.imageUrl!)
-                                                  : NetworkImage(_profileImg!),
-                                            );
-                                          }
-                                      ),
+                          child: Card(
+                            elevation: 2,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Consumer<UserImageController>(
+
+                                        builder: (context ,imagecontorller,child){
+                                          return CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            radius: 30,
+                                            backgroundImage: imagecontorller.imageUrl != null && imagecontorller.imageUrl!.isNotEmpty
+                                                ? NetworkImage(imagecontorller.imageUrl!)
+                                                : NetworkImage(_profileImg ?? 'https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=612x612&w=0&k=20&c=dhV2p1JwmloBTOaGAtaA3AW1KSnjsdMt7-U_3EZElZ0='),
+                                          );
+                                        }
                                     ),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            _username ?? 'Username',
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _username ?? 'Username',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        SizedBox(height: 2),
+                                        Text(_createdAt ?? 'Email not available'),
+                                        SizedBox(height: 2),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(5),
+                                            color: Colors.green,
+                                          ),
+                                          child: Text(
+                                            "SELF",
                                             style: TextStyle(
+                                              color: Colors.white,
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 13,
                                             ),
                                           ),
-                                          SizedBox(height: 2),
-                                          Text(_createdAt ?? 'Email not available'),
-                                          SizedBox(height: 2),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(5),
-                                              color: Colors.green,
-                                            ),
-                                            child: Text(
-                                              "SELF",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(height: 2),
-                                          Text('ABHA Id: Not available'),
-                                        ],
-                                      ),
+                                        ),
+                                        SizedBox(height: 2),
+                                        Text('ABHA Id: Not available'),
+                                      ],
                                     ),
-                                    // Radio button
-            
-            
-                                  ],
-                                ),
+                                  ),
+                                  // Radio button
+
+
+                                ],
                               ),
                             ),
                           ),
@@ -227,27 +224,27 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
                       );
                     } else {
                     List<childmember> childMembers = snapshot.data!;
-            
+
                     return ListView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: childMembers.length,
                       itemBuilder: (context, index) {
                         childmember member = childMembers[index];
-            
+
                         DateTime? createdAt;
                         try {
                           createdAt = DateTime.parse(member.data?.createdAt ?? '');
                         } catch (e) {
                           createdAt = DateTime.now(); // Default value if parsing fails
                         }
-            
+
                         // Format createdAt DateTime to string
                         String formattedDate = DateFormat('dd-MM-yyyy').format(createdAt);
                         bool isSelected = _selectedMember == member;
                         return GestureDetector(
                           onTap: () {
-            
+
                             setState(() {
                               selectedMember = member.data!.name!;
                               memberSelected = member;
@@ -319,7 +316,7 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
                                     ),
                                     if (selectedMember == member.data!.name!)
                                       Icon(Icons.check_circle, color: iconcolor, size: 30),
-            
+
                                   ],
                                 ),
                               ),

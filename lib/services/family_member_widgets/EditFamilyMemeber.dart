@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:dspuiproject/services/UnoHomePage.dart';
+import 'package:dspuiproject/widgets/SnackBarUtils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -286,27 +287,12 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 1.0),
                       child: Row(
-                        // children: [
-                        //   Icon(Icons.check_circle_outline_sharp, color: navyBlueColor),
-                        //   SizedBox(width: 10),
-                        //   Expanded(
-                        //     child: Text(
-                        //       'The document submitted are valid and correct \n to the best of my knowledge',
-                        //       overflow: TextOverflow.ellipsis,
-                        //     ),
-                        //   ),
-                        // ],
+
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      // child: Row(
-                      //   children: [
-                      //     Icon(Icons.check_circle_outline_sharp, color: navyBlueColor),
-                      //     SizedBox(width: 10),
-                      //     Text('By uploading this document i provide permission to \n DSP to store and use this document for\n verification purpose'),
-                      //   ],
-                      // ),
+
                     ),
                     SizedBox(height: 80),
                   ],
@@ -356,24 +342,13 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
               );
               // Dismiss loading dialog
               Navigator.pop(context);
-              Fluttertoast.showToast(
-                msg: 'User child details updated successfully',
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
+              SnackBarUtils.showSuccessSnackBar(context, "User child details updated successfully");
               // await Future.delayed(Duration(seconds: 3));
               // Navigator.push(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
               Navigator.pop(context);
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Please fill all required fields.'),
-                ),
-              );
+              SnackBarUtils.showErrorSnackBar(context, "Please fill all required fields");
+
             }
           },
           label: Text('SAVE', style: TextStyle(color: Colors.black, fontSize: 19)),

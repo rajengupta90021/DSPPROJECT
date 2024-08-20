@@ -5,12 +5,61 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import '../../Model/MyOrder.dart';
 import '../../constant/colors.dart';
+import '../../dbHelper/DbHelper.dart';
 import '../../provider/CartProvider.dart';
 import '../../provider/NotificationController.dart';
 
 class PaymentMethod extends StatefulWidget {
-  const PaymentMethod({super.key});
+  final String? userId;
+  final String? username;
+  final String? email;
+  final String? password;
+  final String? mobile;
+  final String? profileImg;
+  final String? role;
+  final String? createdAt;
+  final String? updatedAt;
+  final String? childName;
+  final String? childUserRelation;
+  final String? childUserPhone;
+  final String? parentChildUserAddress;
+  final String? childUserHouseNo;
+  final String? childUserPinCode;
+  final String? childUserCity;
+  final String? childUserState;
+  final DateTime? selectedDate;
+  final String? startTime;
+  final String? endTime;
+  final double totalAmount;
+  final String cartItemsString;
+
+  // Constructor with named parameters
+  PaymentMethod({
+    this.userId,
+    this.username,
+    this.email,
+    this.password,
+    this.mobile,
+    this.profileImg,
+    this.role,
+    this.createdAt,
+    this.updatedAt,
+    this.childName,
+    this.childUserRelation,
+    this.childUserPhone,
+    this.parentChildUserAddress,
+    this.childUserHouseNo,
+    this.childUserPinCode,
+    this.childUserCity,
+    this.childUserState,
+    this.selectedDate,
+    this.startTime,
+    this.endTime,
+     required this.totalAmount,
+    required this.cartItemsString,
+  });
 
   @override
   State<PaymentMethod> createState() => _PaymentMethodState();
@@ -22,6 +71,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
   void handleRadio(int? e) => setState(() {
     type = e!;
   });
+  DBHelperOrder DBHelperOrderr= DBHelperOrder();
 
   @override
   void initState() {
@@ -352,7 +402,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
                             icon: 'resource://drawable/launcher_icon',
                             notificationLayout: NotificationLayout.BigPicture,
                           ),
-                          
+
                         );
                         final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
@@ -360,6 +410,40 @@ class _PaymentMethodState extends State<PaymentMethod> {
                         await cartProvider.clearCart();
 
                         // Handle additional actions if needed
+                        String uniqueId = DateTime.now().millisecondsSinceEpoch.toString();
+                        String formattedOrderId = "#ORDERID${uniqueId.substring(uniqueId.length - 4)}";
+
+                        Order order = Order(
+                          orderId: formattedOrderId,
+                          userId: widget.userId ?? '', // Provide a default value if null
+                          username: widget.username ?? '',
+                          email: widget.email ?? '',
+                          password: widget.password ?? '',
+                          mobile: widget.mobile ?? '',
+                          profileImg: widget.profileImg ?? '',
+                          role: widget.role ?? '',
+                          createdAt: widget.createdAt ?? '',
+                          updatedAt: widget.updatedAt ?? '',
+                          childName: widget.childName ?? '',
+                          childUserRelation: widget.childUserRelation ?? '',
+                          childUserPhone: widget.childUserPhone ?? '',
+                          childUserDob:  '',
+                          parentChildUserAddress: widget.parentChildUserAddress ?? '',
+                          childUserHouseNo: widget.childUserHouseNo ?? '',
+                          childUserPinCode: widget.childUserPinCode ?? '',
+                          childUserCity: widget.childUserCity ?? '',
+                          childUserState: widget.childUserState ?? '',
+                          selectedDate: widget.selectedDate ?? DateTime.now() , // Format DateTime or provide default
+                          startTime: widget.startTime ?? '',
+                          endTime: widget.endTime ?? '',
+                          totalAmount: widget.totalAmount ?? 0.0, // Provide a default value if null
+                          cartItems: widget.cartItemsString,
+                          orderStatus: 'PENDING',
+                          paymentStatus: 'PENDING', // This should be a non-null string
+                        );
+
+                        await DBHelperOrderr.insertOrder(order);
+
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (context) => NavigationMenu()),

@@ -1,3 +1,4 @@
+import 'package:dspuiproject/widgets/SnackBarUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -188,13 +189,10 @@ class _ManageAddressPageState extends State<ManageAddressPage> {
                                                 setState(() {
                                                   _addresses.remove(addressData);
                                                 });
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(content: Text('Address deleted successfully')),
-                                                );
+                                                SnackBarUtils.showSuccessSnackBar(context, "Address deleted successfully");
                                               } else {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(content: Text('Failed to delete address')),
-                                                );
+                                                SnackBarUtils.showErrorSnackBar(context, "Failed to delete address");
+
                                               }
                                               Navigator.of(context).pop();
                                             },
