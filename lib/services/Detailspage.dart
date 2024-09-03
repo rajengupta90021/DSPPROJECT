@@ -4,6 +4,7 @@ import 'package:dspuiproject/helper/utils.dart';
 import 'package:dspuiproject/services/BookingTest3.dart';
 import 'package:dspuiproject/services/cart2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../dbHelper/DbHelper.dart';
@@ -137,19 +138,21 @@ class _DetailsPageState extends State<DetailsPage> {
                   Text("₹ ${widget.testInfo.rates}", style:TextStyle(fontWeight: FontWeight.bold,fontSize: 15)),
                 ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Cart2()));
-
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black, backgroundColor: iconcolor, // Text color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    // side: BorderSide(color: Colors.blue), // Border color
+              Flexible(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Cart2()));
+                
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black, backgroundColor: iconcolor, // Text color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      // side: BorderSide(color: Colors.blue), // Border color
+                    ),
                   ),
+                  child: Text('BOOK A TEST', style: TextStyle(color: Colors.black)),
                 ),
-                child: Text('BOOK A TEST', style: TextStyle(color: Colors.black)),
               ),
             ],
           ),

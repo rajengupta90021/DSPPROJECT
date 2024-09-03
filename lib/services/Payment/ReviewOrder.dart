@@ -33,40 +33,7 @@ class ReviewOrder extends StatefulWidget {
 class _ReviewOrderState extends State<ReviewOrder> {
   DbHelper dbHelper = DbHelper();
 
-  String? _userId;
-  String? _username;
-  String? _email;
-  String? _password;
-  String? _mobile;
-  String ?_profileImg;
-  String? _role;
-  String? _createdAt;
-  String? _updatedAt;
-  // /*********************
-  String? Childname;
-  String? childuserRelation;
-  String? ChilduserPhone;
-  String? childuserdob;
-  String? Childusergender;
-  String? ParentchilduserAddress;
-  String? childuserHouseNo;
-  String? childuserPinCode;
-  String? childuserCity;
-  String? childuserState;
-  // **********************
-  DateTime? selectedDate;
-  String? startTime;
-  String? endTime;
-  // *******************
-  double? totalAmount;
-  late Future<List<TestCart>> _cartFuture;
   DBHelperOrder DBHelperOrderr= DBHelperOrder();
-
-  @override
-  void initState() {
-    super.initState();
-    _cartFuture = Provider.of<CartProvider>(context, listen: false).getData();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +192,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
                                 });
                                 setState(() {
                                   // Refresh the cart data
-                                  _cartFuture = Provider.of<CartProvider>(context, listen: false).getData();
+                                  // _cartFuture = Provider.of<CartProvider>(context, listen: false).getData();
                                 });
                                 Navigator.of(context).pop(); // Close the dialog
                               },
@@ -565,66 +532,49 @@ class _ReviewOrderState extends State<ReviewOrder> {
             // _gatherAndStoreData();
 
 
-            final cartProvider = Provider.of<CartProvider>(context, listen: false);
-            final selectedMemberProvider = Provider.of<SelectedMemberProvider>(context, listen: false);
-            final addressProvider = Provider.of<AddressProvider>(context, listen: false);
-            final dateTimeProvider = Provider.of<DateTimeProvider>(context, listen: false);
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            // Gather data
-            Childname = selectedMemberProvider.name;
-            childuserRelation = selectedMemberProvider.relation;
-            ChilduserPhone = selectedMemberProvider.phone;
-
-            ParentchilduserAddress = addressProvider.address;
-            childuserHouseNo = addressProvider.houseNo;
-            childuserPinCode = addressProvider.pinCode;
-            childuserCity = addressProvider.cityName;
-            childuserState = addressProvider.stateName;
-
-            selectedDate = dateTimeProvider.selectedDate;
-            startTime = dateTimeProvider.selectedStartTime;
-            endTime = dateTimeProvider.selectedEndTime;
-
-            _userId = prefs.getString('user_id') ?? '';
-            _username = prefs.getString('name') ?? '';
-            _email = prefs.getString('email') ?? '';
-            _password = prefs.getString('password') ?? '';
-            _mobile = prefs.getString('mobile') ?? '';
-            _profileImg = prefs.getString('profile_img') ?? '';
-            _role = prefs.getString('role') ?? '';
-            _createdAt = prefs.getString('created_at') ?? '';
-            _updatedAt = prefs.getString('updated_at') ?? '';
-            // Total amount
-            totalAmount = cartProvider.getTotalPrice().toDouble();
-            List<TestCart> cartItems = await _cartFuture;
-            List<Map<String, dynamic>> cartItemsJson = cartItems.map((item) => item.toMap()).toList();
-            String cartItemsString = jsonEncode(cartItemsJson);
+            // final cartProvider = Provider.of<CartProvider>(context, listen: false);
+            // final selectedMemberProvider = Provider.of<SelectedMemberProvider>(context, listen: false);
+            // final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+            // final dateTimeProvider = Provider.of<DateTimeProvider>(context, listen: false);
+            // SharedPreferences prefs = await SharedPreferences.getInstance();
+            // // Gather data
+            // Childname = selectedMemberProvider.name;
+            // childuserRelation = selectedMemberProvider.relation;
+            // ChilduserPhone = selectedMemberProvider.phone;
+            // childuserdob = selectedMemberProvider.dob;
+            // Childusergender = selectedMemberProvider.gender;
+            //
+            // ParentchilduserAddress = addressProvider.address;
+            // childuserHouseNo = addressProvider.houseNo;
+            // childuserPinCode = addressProvider.pinCode;
+            // childuserCity = addressProvider.cityName;
+            // childuserState = addressProvider.stateName;
+            //
+            // selectedDate = dateTimeProvider.selectedDate;
+            // startTime = dateTimeProvider.selectedStartTime;
+            // endTime = dateTimeProvider.selectedEndTime;
+            //
+            // _userId = prefs.getString('user_id') ?? '';
+            // _username = prefs.getString('name') ?? '';
+            // _email = prefs.getString('email') ?? '';
+            // _password = prefs.getString('password') ?? '';
+            // _mobile = prefs.getString('mobile') ?? '';
+            // _dob = prefs.getString('dob') ?? '';
+            // _gender = prefs.getString('gender') ?? '';
+            // _profileImg = prefs.getString('profile_img') ?? '';
+            // _role = prefs.getString('role') ?? '';
+            // _createdAt = prefs.getString('created_at') ?? '';
+            // _updatedAt = prefs.getString('updated_at') ?? '';
+            // // Total amount
+            // totalAmount = cartProvider.getTotalPrice().toDouble();
+            // List<TestCart> cartItems = await _cartFuture;
+            // List<Map<String, dynamic>> cartItemsJson = cartItems.map((item) => item.toMap()).toList();
+            // String cartItemsString = jsonEncode(cartItemsJson);
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => PaymentMethod(
-                  userId: _userId,
-                  username: _username,
-                  email: _email,
-                  password: _password,
-                  mobile: _mobile,
-                  profileImg: _profileImg,
-                  role: _role,
-                  createdAt: _createdAt,
-                  updatedAt: _updatedAt,
-                  childName: Childname,
-                  childUserRelation: childuserRelation,
-                  childUserPhone: ChilduserPhone,
-                  parentChildUserAddress: ParentchilduserAddress,
-                  childUserHouseNo: childuserHouseNo,
-                  childUserPinCode: childuserPinCode,
-                  childUserCity: childuserCity,
-                  childUserState: childuserState,
-                  selectedDate: selectedDate ?? DateTime.now(),
-                  startTime: startTime,
-                  endTime: endTime,
-                  totalAmount: totalAmount ?? 0.0,
-                  cartItemsString: cartItemsString,
+
                 ),
               ),
             );

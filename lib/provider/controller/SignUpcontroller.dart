@@ -38,6 +38,8 @@ class SignUpController with ChangeNotifier {
         print("${result.data?.password}");
         print("${result.data?.role}");
         print("${result.data?.mobile}");
+        print("${result.data?.dob}");
+        print("${result.data?.gender}");
 
         _sharedPreferencesService.saveUserData(result);
         // Navigator.push(context, MaterialPageRoute(builder: (context)=>NavigationMenu()));
@@ -60,15 +62,19 @@ class SignUpController with ChangeNotifier {
      String? email,
      String? mobileNumber,
      String? profile_img,
+     String? dob,
+     String? gender,
     // Add other fields as needed
   }) async {
     setLoading(true);
 
     try {
-
+  print("form singlnup controller for update ");
       print("full name $fullName");
       print("full name $email");
       print("full name $mobileNumber");
+      print("full name $dob");
+      print("full name $gender");
 
       // Fetch current user ID from Firebase Auth
       // Replace with your method to get current user ID
@@ -78,11 +84,13 @@ class SignUpController with ChangeNotifier {
         fullName: fullName,
         email: email,
         mobileNumber: mobileNumber,
+        dob: dob,
+        gender: gender,
 
         // Add other fields as needed
       );
       notifyListeners();
-  if(result != null){
+      if(result != null){
 
     print("result is ${result.data?.name}");
     _sharedPreferencesService.saveUserData(result);

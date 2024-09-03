@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dspuiproject/helper/LocationService.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Model/UserInfo.dart';
@@ -39,7 +40,19 @@ class LoginController with ChangeNotifier {
       setLoading(false);
 
       if (userData != null) {
+        print("User Details:");
+        print("Name: ${userData.data?.name}");
+        print("Email: ${userData.data?.email}");
+        print("Mobile: ${userData.data?.mobile}");
+        print("Profile Image: ${userData.data?.profileImg}");
+        print("Role: ${userData.data?.role}");
+        print("Date of Birth: ${userData.data?.dob}");
+        print("Gender: ${userData.data?.gender}");
+        print("Created At: ${userData.data?.createdAt}");
+        print("Updated At: ${userData.data?.updatedAt}");
         _sharedPreferencesService.saveUserData(userData);
+        // Fetch and store location after login
+        await _fetchAndStoreLocation();
 
         SnackBarUtils.showSuccessSnackBar(
           context,
@@ -84,6 +97,36 @@ class LoginController with ChangeNotifier {
     _prefs = null;
     super.dispose();
   }
+
+
+
+  Future<void> _fetchAndStoreLocation() async {
+    setLoading(true);
+    LocationService locationService = LocationService();
+
+    // Call checkPermission with a callback
+    await locationService.checkPermission((coordinates, address) async {
+      // Extract latitude and longitude from coordinates
+      List<String> parts = coordinates.split('\n');
+      String latPart = parts[0].replaceAll('Latitude: ', '');
+      String lonPart = parts[1].replaceAll('Longitude: ', '');
+
+
+      // Save latitude and longitude to SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('latitude', latPart);
+      await prefs.setString('longitude', lonPart);
+      await prefs.setString('address', address);
+
+
+      // Optionally, you can print the saved data for debugging purposes
+      print("Saved Latitude: $latPart");
+      print("Saved Longitude: $lonPart");
+      print("Saved Address: $address");
+      setLoading(false); // Stop loading
+    });
+  }
+
 }
 
 

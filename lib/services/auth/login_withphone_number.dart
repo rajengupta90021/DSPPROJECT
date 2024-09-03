@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../helper/utils.dart';
+import '../../widgets/LoadingOverlay.dart';
 import '../../widgets/SnackBarUtils.dart';
 import '../../widgets/rounded_botton.dart';
 
@@ -20,7 +21,7 @@ class _loginwithphonenumberState extends State<loginwithphonenumber> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final formkey = GlobalKey<FormState>();
   String? _errorText;
-  bool loading = false;
+  bool _loading = false;
   String _countryCode = '+91';
 
   @override
@@ -54,51 +55,57 @@ class _loginwithphonenumberState extends State<loginwithphonenumber> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.white, Colors.blue.shade100],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            SizedBox(height: 90),
-            Image.asset(
-              "assets/otpngg.png",
-              width: 80,
-              height: 150,
-            ),
-            Center(
-              child: Text(
-                "Your phone ! ",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+      body: Stack(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.blue.shade100],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 6),
-              child: Text(
-                'We will send you a one-time password\non this mobile number',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                SizedBox(height: 90),
+                Image.asset(
+                  "assets/otpngg.png",
+                  width: 80,
+                  height: 150,
                 ),
-              ),
+                Center(
+                  child: Text(
+                    "Your phone ! ",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 6),
+                  child: Text(
+                    'We will send you a one-time password\non this mobile number',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                PhoneText(),
+                SizedBox(height: 50),
+                Button(),
+              ],
             ),
-            SizedBox(height: 20),
-            PhoneText(),
-            SizedBox(height: 50),
-            Button(),
-          ],
-        ),
+          ),
+          LoadingOverlay(isLoading: _loading), // Overlay for loading indicator
+        ],
       ),
     );
   }
+
 
   Widget PhoneText() {
     return Padding(
@@ -106,21 +113,6 @@ class _loginwithphonenumberState extends State<loginwithphonenumber> {
       child: TextField(
         controller: _phoneNumberController,
         keyboardType: TextInputType.number,
-        // decoration: InputDecoration(
-        //   prefix: Text("+91 "),
-        //   prefixIcon: Icon(Icons.phone),
-        //   labelText: "enter phone number ",
-        //   hintStyle: TextStyle(color: Colors.grey),
-        //   labelStyle: TextStyle(color: Colors.grey),
-        //   enabledBorder: UnderlineInputBorder(
-        //     borderSide: BorderSide(color: Colors.black),
-        //   ),
-        //   focusedBorder: UnderlineInputBorder(
-        //     borderSide: BorderSide(
-        //       color: Colors.blue,
-        //     ),
-        //   ),
-        // ),
         decoration: buildInputDecoration(
           hintText: "+91 ",
           prefixIcon: Icons.phone,
@@ -135,21 +127,16 @@ class _loginwithphonenumberState extends State<loginwithphonenumber> {
       child: ElevatedButton(
         onPressed: () async {
 
-          showDialog(
-            context: context,
-            barrierDismissible: false, // Prevent dismiss on tap outside
-            builder: (BuildContext context) {
-              return Center(
-                child: CircularProgressIndicator(), // Loading indicator
-              );
-            },
-          );
-          await Future.delayed(Duration(seconds: 2));
+          setState(() {
+            _loading = true; // Show loading indicator
+          });
           // final phoneNumber = '$_countryCode${_phoneNumberController.text.trim()}';
           // String phoneNumber = _countryCode + _phoneNumberController.text.trim();
           final phoneNumber = _countryCode + _phoneNumberController.text.trim();
           if (phoneNumber.isEmpty) {
-            Navigator.pop(context);
+            setState(() {
+              _loading = false; // Hide loading indicator
+            });
             SnackBarUtils.showErrorSnackBar(
               context,
               "Please enter a phone number",
@@ -158,7 +145,9 @@ class _loginwithphonenumberState extends State<loginwithphonenumber> {
           }
 
           if (phoneNumber.length < 10) {
-            Navigator.pop(context);
+            setState(() {
+              _loading = false; // Hide loading indicator
+            });
             SnackBarUtils.showErrorSnackBar(
               context,
               "Please enter a valid phone number",
@@ -172,16 +161,23 @@ class _loginwithphonenumberState extends State<loginwithphonenumber> {
                   context,
                   "Verification completed automatically",
                 );
+                setState(() {
+                  _loading = false; // Hide loading indicator
+                });
 
             },
             verificationFailed: (FirebaseAuthException e) {
-              Navigator.pop(context);
+              setState(() {
+                _loading = false; // Hide loading indicator
+              });
                 _handleVerificationFailure(e);
                 print("Verification failed: ${e.message}");
 
             },
             codeSent: (String verificationId, int? forceResendingToken) {
-              Navigator.pop(context);
+              setState(() {
+                _loading = false; // Hide loading indicator
+              });
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -194,7 +190,9 @@ class _loginwithphonenumberState extends State<loginwithphonenumber> {
 
             },
             codeAutoRetrievalTimeout: (String verificationId) {
-              Navigator.pop(context);
+              setState(() {
+                _loading = false; // Hide loading indicator
+              });
                 SnackBarUtils.showInfoSnackBar(
                   context,
                   "Auto-retrieval timeout",

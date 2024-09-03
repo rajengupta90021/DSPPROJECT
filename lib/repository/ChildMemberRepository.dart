@@ -49,6 +49,8 @@ class ChildMemberRepository {
     required String mobile,
     required String relation,
     required String address,
+    required String dob,
+    required String gender,
   }) async {
     final String apiUrl = 'https://us-central1-dsp-backend.cloudfunctions.net/api/create_user_child';
 
@@ -59,6 +61,8 @@ class ChildMemberRepository {
       'mobile': mobile,
       'relation': relation,
       'address': address,
+      'dob': dob,
+      'gender': gender,
     };
 
     try {
@@ -99,6 +103,8 @@ class ChildMemberRepository {
     required String mobile,
     required String relation,
     required String address,
+    required String dob,
+    required String gender,
   }) async {
     final String apiUrl = 'https://us-central1-dsp-backend.cloudfunctions.net/api/update_user_child/$userId';
 
@@ -115,6 +121,8 @@ class ChildMemberRepository {
           'mobile': mobile,
           'relation': relation,
           'address': address,
+          'dob': dob,
+          'gender': gender,
         }),
       );
 

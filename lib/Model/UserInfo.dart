@@ -29,6 +29,8 @@ class Data {
   String? mobile;
   String? profileImg;
   String? role;
+  String? dob;
+  String? gender;
   String? createdAt;
   String? updatedAt;
 
@@ -38,6 +40,8 @@ class Data {
         this.password,
         this.mobile,
         this.profileImg,
+        this.dob,
+        this.gender,
         this.role,
         this.createdAt,
         this.updatedAt});
@@ -49,6 +53,8 @@ class Data {
     mobile = json['mobile'];
     profileImg = json['profile_img'];
     role = json['role'];
+    dob = json['dob'];
+    gender = json['gender'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
@@ -61,6 +67,8 @@ class Data {
     data['mobile'] = this.mobile;
     data['profile_img'] = this.profileImg;
     data['role'] = this.role;
+    data['dob'] = this.dob;
+    data['gender'] = this.gender;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     return data;

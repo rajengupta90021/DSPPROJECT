@@ -55,6 +55,10 @@ class SharedPreferencesService {
     _prefs!.setString('role', userData.data?.role ?? '');
     _prefs!.setString('created_at', userData.data?.createdAt ?? '');
     _prefs!.setString('updated_at', userData.data?.updatedAt ?? '');
+    _prefs!.setString('dob', userData.data?.dob ?? ''); // Added DOB
+    _prefs!.setString('gender', userData.data?.gender ?? ''); // Added Gender
+    print(" dob form shared preference ${userData.data?.dob}");
+    print(" gender  form shared preference ${userData.data?.gender}");
   }
 
 // Add more methods as needed to retrieve other user data from SharedPreferences
@@ -77,6 +81,8 @@ class SharedPreferencesService {
       prefs.setString('profile_img', userData.data?.profileImg ?? '');
       prefs.setString('role', userData.data?.role ?? '');
       prefs.setString('updated_at', userData.data?.updatedAt ?? '');
+      prefs.setString('dob', userData.data?.dob ?? ''); // Added DOB
+      prefs.setString('gender', userData.data?.gender ?? ''); // Added Gender
     } catch (e) {
       print('Exception occurred while updating user data in SharedPreferences: $e');
     }

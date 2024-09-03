@@ -31,6 +31,8 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
    String? _mobile;
    String? _profileImg;
    String? _role;
+   String? _dob;
+   String? _gender;
    String? _createdAt;
    String? _updatedAt;
   bool isLoggedIn = false;
@@ -62,6 +64,8 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
       _role = prefs.getString('role') ?? '';
       _createdAt = prefs.getString('created_at') ?? '';
       _updatedAt = prefs.getString('updated_at') ?? '';
+      _dob = prefs.getString('dob') ?? '';
+      _gender = prefs.getString('gender') ?? '';
 
     });
   }
@@ -360,12 +364,16 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
                       email: _email,
                       phone: _mobile,
                       relation: 'SELF',
+                      dob: _dob,  // Add Date of Birth
+                      gender: _gender,  // Add Gender
                     );
                     await    _showAlertDialog(context,
                         name: _username,
                         email: _email,
                         phone: _mobile,
-                        relation: 'SELF'
+                        relation: 'SELF',
+                          dob: _dob,  // Add Date of Birth
+                           gender: _gender,  // Add Gender
                     );
                     print("No child selected. Defaulting to parent: $_username");
                     // Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingDate()));
@@ -376,12 +384,18 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
                       email: memberSelected!.data?.email,
                       phone: memberSelected!.data?.mobile, // Ensure this field is available in `childmember`
                       relation: memberSelected!.data?.relation,
+                      dob: memberSelected!.data?.dob,  // Ensure `dob` is available in `childmember`
+                      gender: memberSelected!.data?.gender,  // Ensure `gender` is available in `childmember`
+
                     );
                     await    _showAlertDialog(context,
                         name: memberSelected!.data?.name,
                         email: memberSelected!.data?.email,
                         phone: memberSelected!.data?.mobile,
-                        relation: memberSelected!.data?.relation
+                        relation: memberSelected!.data?.relation,
+                        dob: memberSelected!.data?.dob,  // Ensure `dob` is available in `childmember`
+                         gender: memberSelected!.data?.gender,  // Ensure `gender` is available in `childmember`
+
                     );
                     print("Selected Member: ${memberSelected!.data?.name ?? 'No Name'}");
                     print("Selected Member: ${memberSelected!.data?.relation ?? 'No Name'}");
@@ -410,6 +424,8 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
         String? email,
         String? phone,
         String? relation,
+        String? dob,
+        String? gender,
       }) async {
     return showDialog<void>(
       context: context,
@@ -440,6 +456,12 @@ class _SelectFamilyMemeberState extends State<SelectFamilyMember> {
                 SizedBox(height: 8),
                 Text('Relation:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
                 Text(relation ?? 'Not Provided', style: TextStyle(color: Colors.grey[800])),
+                SizedBox(height: 8),
+                Text('DOB:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+                Text(dob ?? 'Not Provided', style: TextStyle(color: Colors.grey[800])),
+                SizedBox(height: 8),
+                Text('gender:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+                Text(gender ?? 'Not Provided', style: TextStyle(color: Colors.grey[800])),
               ],
             ),
           ),

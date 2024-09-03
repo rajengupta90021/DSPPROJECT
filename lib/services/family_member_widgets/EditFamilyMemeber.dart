@@ -37,7 +37,8 @@ class EditFamilyMemeber extends StatefulWidget {
   final String relation;
   final String address;
   final String id;
-
+  final String dob; // Add dob parameter
+  final String gender; // Add gender parameter
 
 
   EditFamilyMemeber({
@@ -47,6 +48,8 @@ class EditFamilyMemeber extends StatefulWidget {
     required this.mobile,
     required this.relation,
     required this.address,
+    required this.dob, // Initialize dob
+    required this.gender, // Initialize gender
     required this.id,
 
 
@@ -100,6 +103,9 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
       mobileNumberController.text =widget.mobile;
       relationController.text=widget.relation;
       dropdownValue = widget.relation;
+      genderController.text = widget.gender; // Set gender controller text
+      _datecontroller.text = widget.dob;
+      selectedGender = getGenderFromString(widget.gender); // Initialize selected gender
 
     });
   }
@@ -213,7 +219,6 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                     SizedBox(height: 10),
 
                     DropdownButtonFormField<String>(
-
                       value: dropdownValue,
                       onChanged: (newValue) {
                         setState(() {
@@ -221,14 +226,14 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                           relationController.text = newValue ?? '';
                         });
                       },
-                      // onChanged: null,
                       items: [
                         DropdownMenuItem<String>(
                           value: 'Daughter',
                           child: Text('Daughter'),
-                        ), DropdownMenuItem<String>(
-                          value: 'self',
-                          child: Text('self'),
+                        ),
+                        DropdownMenuItem<String>(
+                          value: 'Self',
+                          child: Text('Self'),
                         ),
                         DropdownMenuItem<String>(
                           value: 'Family',
@@ -243,8 +248,8 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                           child: Text('Mother'),
                         ),
                         DropdownMenuItem<String>(
-                          value: 'son',
-                          child: Text('son'),
+                          value: 'Son',
+                          child: Text('Son'),
                         ),
                         DropdownMenuItem<String>(
                           value: 'Spouse',
@@ -255,9 +260,8 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
                         labelText: 'Relation',
                       ),
-
-
                     ),
+
                     SizedBox(height: 10),
                     TextFormField(
                       controller: _datecontroller,
@@ -338,7 +342,9 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                   email: emailController.text,
                   mobile: mobileNumberController.text,
                   relation: relationController.text,
-                  address: widget.address
+                  address: widget.address,
+                  dob:_datecontroller.text,
+                gender:genderController.text
               );
               // Dismiss loading dialog
               Navigator.pop(context);
@@ -360,17 +366,25 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
   }
 
   Future<void> _selectdate() async {
+    DateTime currentDate = DateTime.now();
+
     DateTime? _picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(1950),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(1900), // Set a reasonable past date limit
+      lastDate: currentDate, // Prevent future dates
     );
 
-    if (_picked != null) {
+    if (_picked != null && _picked.isBefore(currentDate)) {
       setState(() {
-        _datecontroller.text = _picked.toString().split(" ")[0];
+        _datecontroller.text = _picked.toLocal().toString().split(" ")[0]; // Format the date
       });
+    } else if (_picked != null && _picked.isAfter(currentDate)) {
+      // Optionally show a message if an invalid date is picked (future date)
+      Fluttertoast.showToast(
+        msg: 'Please select a valid date of birth (no future dates allowed).',
+        backgroundColor: Colors.red,
+      );
     }
   }
 

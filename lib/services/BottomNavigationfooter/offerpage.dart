@@ -30,7 +30,7 @@ class _offerpageState extends State<offerpage> {
         // Your content for the Offers page
         child: Center(
           child: Text(
-            'Offers Page Content',
+            'No Offer Right Now  ',
             style: TextStyle(fontSize: 24),
           ),
         ),

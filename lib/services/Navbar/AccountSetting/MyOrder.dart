@@ -37,8 +37,9 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // automaticallyImplyLeading: false,
         centerTitle: true,
-        title: Text("My Orders"),
+        title: Text("My Orders",style: TextStyle(fontWeight: FontWeight.bold),),
         backgroundColor: iconcolor,
       ),
       body: FutureBuilder<List<Order>>(
@@ -49,7 +50,21 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No orders found.', style: TextStyle(fontSize: 18, color: Colors.grey)));
+
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/no_item2.gif",
+                  height: 60,width: 60,),
+                  SizedBox(height: 20),
+                  Text(
+                    'No orders found.',
+                    style: TextStyle(fontSize: 25, color: Colors.black54),
+                  ),
+                ],
+              ),
+            );
           }
 
           final orders = snapshot.data!;
@@ -63,9 +78,11 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
               //   return '${item['tests']},';
               // }).join('\n');
               String cartItemsFormatted = cartItemsList.asMap().entries.map((entry) {
-                int index = entry.key;
+                int index = entry.key + 1;
                 var item = entry.value;
-                return '${index + 1}. ${item['tests']}';
+
+                // Return formatted string
+                return '$index. ${item['tests']}';
               }).join('\n');
 
 
@@ -92,7 +109,7 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
                               fit: BoxFit.cover,
                             ),
                           ),
-                          SizedBox(width: 16),
+                          SizedBox(width: 25),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +166,8 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Date: ${DateFormat('dd/MM/yyyy').format(order.selectedDate)}",
+                            // "Date: ${DateFormat('dd/MM/yyyy').format(order.selectedDate)}",
+                            "Date: ${DateFormat('dd/MM/yyyy').format(DateTime.now())}",
                             style: TextStyle(fontSize: 16, color: Colors.black54),
                           ),
                           ElevatedButton(

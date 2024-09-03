@@ -27,6 +27,7 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
   TextEditingController fullNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController genderController = TextEditingController();
+  TextEditingController dobController = TextEditingController();
   String? userId;
   final formkey = GlobalKey<FormState>();
   SharedPreferencesService SharedPreferencesServicee = SharedPreferencesService();
@@ -263,9 +264,9 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
         child: FloatingActionButton.extended(
           onPressed: () async {
             if (formkey.currentState!.validate()) {
-
+              printFormData();
                try{
-                 printFormData();
+
 
                  showDialog(
                    context: context,
@@ -281,7 +282,10 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                    email: emailController.text,
                    mobile: mobileNumberController.text,
                    relation: dropdownValue ?? '',
-                   address: "",);
+                   address: "",
+                    dob:_datecontroller.text,
+                 gender:genderController.text
+               );
 
 
                  await Future.delayed(Duration(seconds: 2));
@@ -313,17 +317,25 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
   }
 
   Future<void> _selectdate() async {
+    DateTime currentDate = DateTime.now();
+
     DateTime? _picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(1900), // Set a reasonable past date limit
+      lastDate: currentDate, // Prevent future dates
     );
 
-    if (_picked != null) {
+    if (_picked != null && _picked.isBefore(currentDate)) {
       setState(() {
-        _datecontroller.text = _picked.toString().split(" ")[0];
+        _datecontroller.text = _picked.toLocal().toString().split(" ")[0]; // Format the date
       });
+    } else if (_picked != null && _picked.isAfter(currentDate)) {
+      // Optionally show a message if an invalid date is picked (future date)
+      Fluttertoast.showToast(
+        msg: 'Please select a valid date of birth (no future dates allowed).',
+        backgroundColor: Colors.red,
+      );
     }
   }
 
@@ -396,6 +408,7 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
     print('Relation: $dropdownValue');
     print('Date of Birth: ${_datecontroller.text}');
     print('Gender: ${genderController.text}');
+
 
 
   }

@@ -1,5 +1,6 @@
 import 'package:dspuiproject/Model/UserInfo.dart';
 import 'package:dspuiproject/constant/colors.dart';
+import 'package:dspuiproject/helper/LocationService.dart';
 import 'package:dspuiproject/services/auth/VerifyNumberRegister.dart';
 import 'package:dspuiproject/services/auth/verifynumber.dart';
 import 'package:dspuiproject/services/home_page2.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_custom_selector/flutter_custom_selector.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 import '../../provider/controller/SignUpcontroller.dart';
@@ -124,7 +126,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       bool success = await provider.signUpAndCreateUserOnAPI(context, userData);
 
       if (success) {
+        await _fetchAndStoreLocation();
         SnackBarUtils.showSuccessSnackBar(context, "Registration successful");
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => NavigationMenu()), // Replace with your next screen
@@ -140,7 +144,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
     }
   }
+  Future<void> _fetchAndStoreLocation() async {
+   setState(() {
+     loading= true;
+   });
+    LocationService locationService = LocationService();
 
+    // Call checkPermission with a callback
+    await locationService.checkPermission((coordinates, address) async {
+      // Extract latitude and longitude from coordinates
+      List<String> parts = coordinates.split('\n');
+      String latPart = parts[0].replaceAll('Latitude: ', '');
+      String lonPart = parts[1].replaceAll('Longitude: ', '');
+
+
+      // Save latitude and longitude to SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('latitude', latPart);
+      await prefs.setString('longitude', lonPart);
+      await prefs.setString('address', address);
+
+
+      // Optionally, you can print the saved data for debugging purposes
+      print("Saved Latitude: $latPart");
+      print("Saved Longitude: $lonPart");
+      print("Saved Address: $address");
+     setState(() {
+       loading=false;
+     }); // Stop loading
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +294,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           roundedbotton(
                             title: isotpsent ? "Verify OTP" : "Sign Up",
-                            loading: provider.loading,
+
                             onTap: () async {
                               if (formkey.currentState!.validate()) {
                                 if (isotpsent) {

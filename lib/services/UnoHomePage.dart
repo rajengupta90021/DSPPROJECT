@@ -80,34 +80,50 @@ class _UnoHomePageState extends State<UnoHomePage> {
   late String _createdAt;
   late String _updatedAt;
   bool isLoggedIn = false;
-// bool connected= false;
+  bool isModalShowing = false;
 
   @override
   void initState() {
     super.initState();
 
-
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CartProvider>(context, listen: false).fetchCategories();
     });
-  setState(() {
+
     InternetConnection().onStatusChange.listen((event) {
-     bool connected= event ==InternetStatus.connected;
+      bool connected = event == InternetStatus.connected;
       Color backgroundColor = connected ? Colors.green : Colors.red;
 
-     // Update provider with connection status
-     var internetProvider = Provider.of<InternetChickingProvider>(context, listen: false);
-     internetProvider.updateConnectionStatus(connected);
+      var internetProvider = Provider.of<InternetChickingProvider>(context, listen: false);
+      internetProvider.updateConnectionStatus(connected);
 
-     // LoginandLoginLaterpage.showInternet(context, 'My internet ',isDismissible: internetProvider.isConnected);
-     print("cheking ${connected}");
-      showSimpleNotification(Text(  connected ? "connected to internet ": "  please connect to the Internet "),background: backgroundColor);
+      if (connected) {
+        if (isModalShowing) {
+          Navigator.of(context).pop(); // Dismiss the modal if it's showing
+          setState(() {
+            isModalShowing = false;
+          });
+        }
+      } else {
+        if (!isModalShowing) {
+          setState(() {
+            isModalShowing = true;
+          });
+
+          LoginandLoginLaterpage.showInternet(context, 'No Internet Connection', isDismissible: false).whenComplete(() {
+            setState(() {
+              isModalShowing = false;
+            });
+          });
+        }
+      }
+      showSimpleNotification(
+        Text(connected ? "Connected to the internet" : "Please connect to the Internet"),
+        background: backgroundColor,
+      );
     });
-  });
+
     _loadUsername();
-
-
   }
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -427,18 +443,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                                 fit: BoxFit.cover,
                                 width: 1000,
                               ),
-                              // Positioned(
-                              //   top: 10,
-                              //   left: 10,
-                              //   child: Text(
-                              //     '${index + 1}',
-                              //     style: TextStyle(
-                              //       color: Colors.white,
-                              //       fontSize: 24,
-                              //       fontWeight: FontWeight.bold,
-                              //     ),
-                              //   ),
-                              // ),
+
                             ],
                           ),
                         ),
@@ -450,22 +455,23 @@ class _UnoHomePageState extends State<UnoHomePage> {
 
                 InkWell(
                   onTap: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => OrdersScreen( userId: _userId,), // Corrected builder syntax
-                      ),
-                    );
+
+                    bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
+                    if(isLoggedIn){
+
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>MyLocation()));
+
+                    }else{
+                      // Navigator.pop(context);
+
+                      LoginandLoginLaterpage.show(context, "Find a center  ");
+                    }
 
                   },
                   child: Container(
                     height: 100,
                     width: 380,
-                    // decoration: BoxDecoration(
-                    //   borderRadius: BorderRadius.circular(8),
-                    //   border: Border.all(color: browncolor2),
-                    //   color: Colors.black,
-                    // ),
+
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -510,21 +516,6 @@ class _UnoHomePageState extends State<UnoHomePage> {
                           onTap: () async {
                             bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
                             if(isLoggedIn){
-
-                            //   TestRepository repository = TestRepository();
-                            // CategegoryRepository cat =    CategegoryRepository();
-                            //
-                            //   try {
-                            //     List<String> testInfos = await cat.fetchCategories();
-                            //     for (var info in testInfos) {
-                            //       print('Test Info: $info');
-                            //
-                            //       print('------------------------');
-                            //     }
-                            //   } catch (e) {
-                            //     print('Failed to fetch test info: $e');
-                            //   }
-
 
                               Navigator.push(context, MaterialPageRoute(builder: (context)=>HelpMeBookTestPage()));
 

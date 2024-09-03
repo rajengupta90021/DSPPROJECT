@@ -27,6 +27,8 @@ class _AccountSettingpageState extends State<AccountSettingpage> {
   late String _mobile;
   late String _profileImg;
   late String _role;
+  late String _dob;
+  late String _gender;
   late String _createdAt;
   late String _updatedAt;
   bool isLoggedIn = false;
@@ -42,7 +44,7 @@ class _AccountSettingpageState extends State<AccountSettingpage> {
 
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Replace 'user_name' with your actual key
+
     bool loggedIn = await _sharedPreferencesService.isUserLoggedIn();
 
     setState(() {
@@ -54,6 +56,8 @@ class _AccountSettingpageState extends State<AccountSettingpage> {
       _mobile = prefs.getString('mobile') ?? '';
       _profileImg = prefs.getString('profile_img') ?? '';
       _role = prefs.getString('role') ?? '';
+      _dob = prefs.getString('dob') ?? ''; // Ensure _dob is initialized
+      _gender = prefs.getString('gender') ?? '';
       _createdAt = prefs.getString('created_at') ?? '';
       _updatedAt = prefs.getString('updated_at') ?? '';
 
@@ -99,7 +103,9 @@ class _AccountSettingpageState extends State<AccountSettingpage> {
                   MaterialPageRoute(builder: (context) => Userprofile(  username: _username,
                     email: _email,
                     mobile: _mobile,
-                    profileimg: _profileImg,)),
+                    profileimg: _profileImg,
+                      dob:_dob,
+                      gender:_gender)),
                 );
               },
               child: ListTile(

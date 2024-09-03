@@ -26,12 +26,16 @@ class Userprofile extends StatefulWidget {
   final String email;
   final String mobile;
   final String profileimg;
+  final String dob;
+  final String gender;
 
   const Userprofile( {
     required this.username,
     required this.email,
     required this.mobile,
     required this.profileimg,
+    required this.dob,
+    required this.gender,
     Key? key,
   }) : super(key: key);
 
@@ -191,6 +195,8 @@ class _UserprofileState extends State<Userprofile> {
                                       email: widget.email,
                                       mobile: widget.mobile,
                                       profileimg: widget.profileimg,
+                                      dob: widget.dob,
+                                      gender: widget.gender,
                                     ),
                                   );
                                 },
@@ -310,6 +316,8 @@ class _UserprofileState extends State<Userprofile> {
                                       print('relation: ${member.data?.relation}');
                                       print('address: ${member.data?.address}');
                                       print('child id : ${member.id}');
+                                      print('child id : ${member.data?.dob}');
+                                      print('child id : ${member.data?.gender}');
 
                                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>EditFamilyMemeber(
                                         parentId: member.data?.parentId ?? '',
@@ -319,6 +327,8 @@ class _UserprofileState extends State<Userprofile> {
                                         relation: member.data?.relation ?? '',
                                         address: member.data?.address ?? '',
                                         id: member.id ?? '',
+                                        dob: member.data?.dob ?? '', // Pass dob
+                                        gender: member.data?.gender ?? '', // Pass gender
                                       )));
                                     },
                                   ),

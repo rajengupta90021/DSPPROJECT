@@ -104,7 +104,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     builder: (context, provider, child) {
                       return roundedbotton(
                         title: "recover ",
-                        loading: provider.loading,
+
                         onTap: () {
                           if (formkey.currentState!.validate()) {
                             provider.forgot(context, emailcontroller.text,);

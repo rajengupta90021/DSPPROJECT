@@ -1,10 +1,10 @@
-import 'dart:convert'; // Import for jsonDecode if needed
+import 'dart:convert';
+import 'package:another_stepper/dto/stepper_data.dart';
+import 'package:another_stepper/widgets/another_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:order_tracker/order_tracker.dart'; // Assuming this is for visualizing order tracking
-
-import '../../../Model/MyOrder.dart'; // Ensure this path is correct
-import '../../../constant/colors.dart';
+import '../../../Model/MyOrder.dart'; // Update this import as per your project structure
+import '../../../constant/colors.dart'; // Update this import as per your project structure
 
 class OrderDetailsPage extends StatefulWidget {
   final Order order;
@@ -16,35 +16,50 @@ class OrderDetailsPage extends StatefulWidget {
 }
 
 class _OrderDetailsPageState extends State<OrderDetailsPage> {
-  List<TextDto> getOrderTrackingList() {
-    // Generate tracking list dynamically based on the order status
-    switch (widget.order.orderStatus) {
-      case 'shipped':
-        return [
-          TextDto("Your order has been shipped", "Tue, 29th Mar '22 - 5:04pm"),
-          TextDto("Your item has been received in the nearest hub to you.", null),
-        ];
-      case 'out for delivery':
-        return [
-          TextDto("Your order is out for delivery", "Thu, 31th Mar '22 - 2:27pm"),
-        ];
-      case 'delivered':
-        return [
-          TextDto("Your order has been delivered", "Thu, 31th Mar '22 - 3:58pm"),
-        ];
-      default:
-        return [
-          TextDto("Your order has been placed", "Fri, 25th Mar '22 - 10:47pm"),
-          TextDto("Seller has processed your order", "Sun, 27th Mar '22 - 10:19am"),
-          TextDto("Your item has been picked up by courier partner.", "Tue, 29th Mar '22 - 5:00pm"),
-        ];
-    }
-  }
+  List<StepperData> stepperData = [
+    StepperData(
 
+        subtitle: StepperText("Your order has been placed"),
+        iconWidget: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: const BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.all(Radius.circular(30))),
+          child: const Icon(Icons.looks_one, color: Colors.white),
+        )),
+    StepperData(
+        // title: StepperText("Preparing"),
+        subtitle: StepperText("We will Catch you soon"),
+        iconWidget: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: const BoxDecoration(
+              color: iconcolor,
+              borderRadius: BorderRadius.all(Radius.circular(30))),
+          child: const Icon(Icons.looks_two, color: Colors.white),
+        )),
+    StepperData(
+        subtitle: StepperText(
+            "Sample Collected Conformed"),
+        iconWidget: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: const BoxDecoration(
+              color: iconcolor,
+              borderRadius: BorderRadius.all(Radius.circular(30))),
+          child: const Icon(Icons.looks_3, color: Colors.white),
+        )),
+    StepperData(
+        title: StepperText("Test Reports",
+            textStyle: const TextStyle(color: Colors.grey)),
+        iconWidget: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: const BoxDecoration(
+              color: iconcolor,
+              borderRadius: BorderRadius.all(Radius.circular(30))),
+          child: const Icon(Icons.looks_4, color: Colors.white),
+        )),
+  ];
   @override
   Widget build(BuildContext context) {
-    List<TextDto> trackingList = getOrderTrackingList();
-
     // Extracting details from the widget.order
     List<dynamic> cartItemsList = jsonDecode(widget.order.cartItems);
     String cartItemsFormatted = cartItemsList.asMap().entries.map((entry) {
@@ -56,77 +71,388 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Order Details"),
+        title: Text("Order Details",style: TextStyle(fontWeight: FontWeight.bold),),
         backgroundColor: iconcolor,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Order ID: ${widget.order.orderId}",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ), Text(
-                    "Order ID: ${widget.order.childUserRelation}",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ), Text(
-                    "Order ID: ${widget.order.orderId}",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ), Text(
-                    "Order ID: ${widget.order.orderId}",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Price: ₹${widget.order.totalAmount}",
-                    style: TextStyle(fontSize: 16, color: Colors.green),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Status: ${widget.order.orderStatus}",
-                    style: TextStyle(fontSize: 16, color: Colors.blueAccent),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Date: ${DateFormat('dd/MM/yyyy').format(widget.order.selectedDate)}",
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    "Tests:",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    cartItemsFormatted,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-            Divider(thickness: 1, color: Colors.grey[300]),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: OrderTracker(
-                status: Status.values.firstWhere(
-                      (status) => status.toString().split('.').last == widget.order.orderStatus.toLowerCase(),
-                  orElse: () => Status.shipped, // Default status
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 20, left: 5,right: 10),
+                child: AnotherStepper(
+                  stepperList: stepperData,
+                  stepperDirection: Axis.horizontal,
+                  iconWidth: 40,
+                  iconHeight: 40,
+                  activeBarColor: Colors.green,
+                  inActiveBarColor: Colors.grey,
+                  inverted: true,
+                  verticalGap: 30,
+                  activeIndex: 1,
+                  barThickness: 5,
                 ),
-                activeColor: Colors.green,
-                inActiveColor: Colors.grey[300],
-                orderTitleAndDateList: getOrderTrackingList(),
-                shippedTitleAndDateList: [],
-                outOfDeliveryTitleAndDateList: [],
-                deliveredTitleAndDateList: [],
               ),
-            ),
-          ],
+              SizedBox(height: 10),
+              Text(
+                "ORDER DETAILS",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
+
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Order Created",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                        DateFormat('dd/MM/yyyy').format(widget.order.selectedDate),
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              // SizedBox(height: 10),
+
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Order ID",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "${widget.order.orderId}",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                "TIME FOR CONSULTING",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Date",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      DateFormat('dd/MM/yyyy').format(widget.order.selectedDate),
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "START TIME  ",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "7:00 pm",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "END TIME  ",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "8:00 PM",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20),
+              Text(
+                "ORDER STATUS",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "order status ",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "CONFORMED",
+                      style: TextStyle(color: Colors.green, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Payment status",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "PENDING",
+                      style: TextStyle(color: Colors.red, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+
+              Text(
+                "ORDER ITEM",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "${cartItemsFormatted}",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Bill",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "${widget.order.totalAmount}",
+                      style: TextStyle(color: Colors.green, fontSize: 16),
+                    ),
+
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                "ADDRESS DETAILS",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 10),
+              _buildDetailCard("Address :", widget.order.parentChildUserAddress ?? ''),
+              _buildDetailCard("House No:", widget.order.childUserHouseNo ?? ''),
+              _buildDetailCard("Pin Code:", widget.order.childUserPinCode ?? ''),
+              _buildDetailCard("City:", widget.order.childUserCity ?? ''),
+              _buildDetailCard("State:", widget.order.childUserState ?? ''),
+              SizedBox(height: 20),
+              Text(
+                "PATIENT DETAILS",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "name",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "${widget.order.childName}",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Phone number",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "${widget.order.childUserPhone}",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Relations",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "${widget.order.childUserRelation}",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Email",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      "${widget.order.email}",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+  Widget _buildDetailCard(String title, String value) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.grey[200], // Background color
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(color: Colors.black54, fontSize: 16),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+          ),
+        ],
       ),
     );
   }

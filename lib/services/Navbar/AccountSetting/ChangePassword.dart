@@ -1,5 +1,6 @@
 import 'package:dspuiproject/constant/colors.dart';
 import 'package:dspuiproject/helper/utils.dart';
+import 'package:dspuiproject/widgets/SnackBarUtils.dart';
 import 'package:flutter/material.dart';
 
 class ChangePassword extends StatefulWidget {
@@ -12,13 +13,14 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   void _verifyMobileNumber() {
     String mobileNumber = _mobileController.text.trim();
-    if (mobileNumber.isNotEmpty) {
-      print('Verifying mobile number: $mobileNumber');
-      Utils().toastmessage('Verifying mobile number: $mobileNumber', Colors.green);
-    } else {
-      print('Please enter a valid mobile number');
-      Utils().toastmessage('Please enter a valid mobile number', Colors.red);
-    }
+    // if (mobileNumber.isNotEmpty) {
+    //   print('Verifying mobile number: $mobileNumber');
+    //   Utils().toastmessage('Verifying mobile number: $mobileNumber', Colors.green);
+    // } else {
+    //   print('Please enter a valid mobile number');
+    //   Utils().toastmessage('Please enter a valid mobile number', Colors.red);
+    // }
+    SnackBarUtils.shownormalSnackBar(context, "working on it ");
   }
 
   @override
@@ -39,7 +41,7 @@ class _ChangePasswordState extends State<ChangePassword> {
               Container(
                 alignment: Alignment.center,
                 height: 200, // Adjust height as needed
-                color: Colors.grey[300],
+                color: Colors.white,
                 child: Stack(
                   children: [
 

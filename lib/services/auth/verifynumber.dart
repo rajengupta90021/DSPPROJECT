@@ -6,6 +6,7 @@ import '../../SharedPreferecneService/SharedPreferenceSerivice.dart';
 import '../../constant/colors.dart';
 import '../../repository/AuthRepository.dart';
 import '../../services/BottomNavigationfooter/NavigationMenu.dart';
+import '../../widgets/LoadingOverlay.dart';
 import '../../widgets/SnackBarUtils.dart';
 
 class VerifyCode extends StatefulWidget {
@@ -87,6 +88,8 @@ class _VerifyCodeState extends State<VerifyCode> {
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           // Auto-retrieval timeout handler
+          _isLoading = false;
+          SnackBarUtils.showInfoSnackBar(context, "Auto-retrieval timeout");
         },
       );
 
@@ -192,7 +195,7 @@ class _VerifyCodeState extends State<VerifyCode> {
             } else {
               SnackBarUtils.showErrorSnackBar(
                 context,
-                "Failed to retrieve user data",
+                "Please Register yourself then login with phone number",
               );
             }
 
@@ -327,15 +330,7 @@ class _VerifyCodeState extends State<VerifyCode> {
               ],
             ),
           ),
-          if (_isLoading) // Show loading indicator if _isLoading is true
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              ),
-            ),
+          LoadingOverlay(isLoading: _isLoading), // Use the LoadingOverlay widget
         ],
       ),
     );

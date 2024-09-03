@@ -34,12 +34,16 @@ class UserProflieEditPage extends StatefulWidget {
   final String email;
   final String mobile;
   final String profileimg;
+  final String dob;
+  final String gender;
 
   UserProflieEditPage({
     required this.username,
     required this.email,
     required this.mobile,
     required this.profileimg,
+    required this.dob,
+    required this.gender,
     Key? key,
   }) : super(key: key);
 
@@ -88,6 +92,9 @@ class _AddFamilyMember2State extends State<UserProflieEditPage> {
       fullNameController.text = prefs.getString('name') ?? '';
       emailController.text= prefs.getString('email') ?? '';
       mobileNumberController.text =prefs.getString('mobile') ?? '';
+      _datecontroller.text = prefs.getString('dob') ?? ''; // Load date of birth
+      genderController.text = prefs.getString('gender') ?? ''; // Load gender
+      selectedGender = getGenderFromString(genderController.text);
 
     });
   }
@@ -347,6 +354,8 @@ class _AddFamilyMember2State extends State<UserProflieEditPage> {
                 fullName: fullNameController.text,
                 email: emailController.text,
                 mobileNumber: mobileNumberController.text,
+                dob: _datecontroller.text,
+                gender: genderController.text,
 
               );
               Navigator.pop(context);
@@ -367,19 +376,28 @@ class _AddFamilyMember2State extends State<UserProflieEditPage> {
   }
 
   Future<void> _selectdate() async {
+    DateTime currentDate = DateTime.now();
+
     DateTime? _picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(1950),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(1900), // Set a reasonable past date limit
+      lastDate: currentDate, // Prevent future dates
     );
 
-    if (_picked != null) {
+    if (_picked != null && _picked.isBefore(currentDate)) {
       setState(() {
-        _datecontroller.text = _picked.toString().split(" ")[0];
+        _datecontroller.text = _picked.toLocal().toString().split(" ")[0]; // Format the date
       });
+    } else if (_picked != null && _picked.isAfter(currentDate)) {
+      // Optionally show a message if an invalid date is picked (future date)
+      Fluttertoast.showToast(
+        msg: 'Please select a valid date of birth (no future dates allowed).',
+        backgroundColor: Colors.red,
+      );
     }
   }
+
 
   Widget _genderWidget({
     required bool showOther,
@@ -444,6 +462,8 @@ class _AddFamilyMember2State extends State<UserProflieEditPage> {
   }
 
   void printFormData() {
+
+    print("printing form data ************************");
     print('Mobile Number: ${mobileNumberController.text}');
     print('Full Name: ${fullNameController.text}');
     print('Email ID: ${emailController.text}');
@@ -451,11 +471,6 @@ class _AddFamilyMember2State extends State<UserProflieEditPage> {
     print("relation controllwe ${relationController.text}");
     print('Date of Birth: ${_datecontroller.text}');
     print('Gender: ${genderController.text}');
-
-    for (var index = 0; index < pickedImages.length; index++) {
-      // final fileName = path.basename(pickedImages[index].path);
-      // print('Image ${index + 1}: $fileName');
-    }
   }
 
   Gender getGenderFromString(String gender) {

@@ -28,6 +28,8 @@ class Data {
   String? name;
   String? email;
   String? address;
+  String? dob;
+  String? gender;
   String? mobile;
   String? profileImg;
   String? relation;
@@ -39,6 +41,8 @@ class Data {
         this.name,
         this.email,
         this.address,
+        this.dob,
+        this.gender,
         this.mobile,
         this.profileImg,
         this.relation,
@@ -50,6 +54,8 @@ class Data {
     name = json['name'];
     email = json['email'];
     address = json['address'];
+    dob = json['dob'];
+    gender = json['gender'];
     mobile = json['mobile'];
     profileImg = json['profile_img'];
     relation = json['relation'];
@@ -63,6 +69,8 @@ class Data {
     data['name'] = this.name;
     data['email'] = this.email;
     data['address'] = this.address;
+    data['dob'] = this.dob;
+    data['gender'] = this.gender;
     data['mobile'] = this.mobile;
     data['profile_img'] = this.profileImg;
     data['relation'] = this.relation;

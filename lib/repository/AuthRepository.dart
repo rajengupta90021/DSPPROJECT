@@ -119,6 +119,8 @@ class UserRepository {
      String? fullName,
      String? email,
      String? mobileNumber,
+     String? dob,
+     String? gender,
 
     // Add other fields as needed
   }) async {
@@ -128,12 +130,17 @@ class UserRepository {
       var userId = await _sharedPreferencesService.getUserId();
       print("User ID from SharedPreferences 2 : $userId");
     print("user id from authrepostirot $userId");
+    print("from repostroty controller for update ");
+    print("user id from dovb $dob");
+    print("user id from gender  $gender");
       var response = await http.put(
         Uri.parse('$_apiUrl/$userId'),
         body: jsonEncode({
           'name': fullName,
           'email': email,
           'mobile': mobileNumber,
+          'dob': dob,
+          'gender': gender,
 
           // Include other fields here if needed
         }),

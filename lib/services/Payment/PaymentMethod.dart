@@ -1,65 +1,28 @@
+import 'dart:convert';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:dspuiproject/services/BottomNavigationfooter/NavigationMenu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Model/MyOrder.dart';
+import '../../Model/TestInformation.dart';
 import '../../constant/colors.dart';
 import '../../dbHelper/DbHelper.dart';
+import '../../provider/AddressControlller.dart';
 import '../../provider/CartProvider.dart';
+import '../../provider/DateTimeProvider.dart';
 import '../../provider/NotificationController.dart';
+import '../../provider/SelectedMemberProvider.dart';
 
 class PaymentMethod extends StatefulWidget {
-  final String? userId;
-  final String? username;
-  final String? email;
-  final String? password;
-  final String? mobile;
-  final String? profileImg;
-  final String? role;
-  final String? createdAt;
-  final String? updatedAt;
-  final String? childName;
-  final String? childUserRelation;
-  final String? childUserPhone;
-  final String? parentChildUserAddress;
-  final String? childUserHouseNo;
-  final String? childUserPinCode;
-  final String? childUserCity;
-  final String? childUserState;
-  final DateTime? selectedDate;
-  final String? startTime;
-  final String? endTime;
-  final double totalAmount;
-  final String cartItemsString;
 
-  // Constructor with named parameters
-  PaymentMethod({
-    this.userId,
-    this.username,
-    this.email,
-    this.password,
-    this.mobile,
-    this.profileImg,
-    this.role,
-    this.createdAt,
-    this.updatedAt,
-    this.childName,
-    this.childUserRelation,
-    this.childUserPhone,
-    this.parentChildUserAddress,
-    this.childUserHouseNo,
-    this.childUserPinCode,
-    this.childUserCity,
-    this.childUserState,
-    this.selectedDate,
-    this.startTime,
-    this.endTime,
-     required this.totalAmount,
-    required this.cartItemsString,
-  });
+
+
 
   @override
   State<PaymentMethod> createState() => _PaymentMethodState();
@@ -67,14 +30,48 @@ class PaymentMethod extends StatefulWidget {
 
 class _PaymentMethodState extends State<PaymentMethod> {
   int type = 4; // Default to Cash On Delivery
-
+  // **************
+  String? _userId;
+  String? _username;
+  String? _email;
+  String? _password;
+  String? _mobile;
+  String? _dob;
+  String? _gender;
+  String ?_profileImg;
+  String? _role;
+  String? _createdAt;
+  String? _updatedAt;
+  // /*********************
+  String? Childname;
+  String? childuserRelation;
+  String? ChilduserPhone;
+  String? childuseremail;
+  String? childuserdob;
+  String? Childusergender;
+  String? ParentchilduserAddress;
+  String? childuserHouseNo;
+  String? childuserPinCode;
+  String? childuserCity;
+  String? childuserState;
+  // **********************
+  DateTime? selectedDate;
+  String? startTime;
+  String? endTime;
+  // *******************
+  double? totalAmount;
+  late Future<List<TestCart>> _cartFuture;
+  final Logger logger = Logger();
+  // ******************8
   void handleRadio(int? e) => setState(() {
     type = e!;
   });
   DBHelperOrder DBHelperOrderr= DBHelperOrder();
 
+
   @override
   void initState() {
+    _cartFuture = Provider.of<CartProvider>(context, listen: false).getData();
     AwesomeNotifications().setListeners(
         onActionReceivedMethod: NotificationController.onActionReceivedMethod,
         onNotificationCreatedMethod:
@@ -407,42 +404,173 @@ class _PaymentMethodState extends State<PaymentMethod> {
                         final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
                         // Clear the cart
-                        await cartProvider.clearCart();
 
-                        // Handle additional actions if needed
+                        //*****************************
+
+
+                        // final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                        final selectedMemberProvider = Provider.of<SelectedMemberProvider>(context, listen: false);
+                        final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+                        final dateTimeProvider = Provider.of<DateTimeProvider>(context, listen: false);
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        // Gather data
+                        Childname = selectedMemberProvider.name;
+                        childuserRelation = selectedMemberProvider.relation;
+                        ChilduserPhone = selectedMemberProvider.phone;
+                        childuserdob = selectedMemberProvider.dob;
+                        Childusergender = selectedMemberProvider.gender;
+                        childuseremail = selectedMemberProvider.email;
+
+                        ParentchilduserAddress = addressProvider.address;
+                        childuserHouseNo = addressProvider.houseNo;
+                        childuserPinCode = addressProvider.pinCode;
+                        childuserCity = addressProvider.cityName;
+                        childuserState = addressProvider.stateName;
+
+                        selectedDate = dateTimeProvider.selectedDate;
+                        startTime = dateTimeProvider.selectedStartTime;
+                        endTime = dateTimeProvider.selectedEndTime;
+
+                        _userId = prefs.getString('user_id') ?? '';
+                        _username = prefs.getString('name') ?? '';
+                        _email = prefs.getString('email') ?? '';
+                        _password = prefs.getString('password') ?? '';
+                        _mobile = prefs.getString('mobile') ?? '';
+                        _dob = prefs.getString('dob') ?? '';
+                        _gender = prefs.getString('gender') ?? '';
+                        _profileImg = prefs.getString('profile_img') ?? '';
+                        _role = prefs.getString('role') ?? '';
+                        _createdAt = prefs.getString('created_at') ?? '';
+                        _updatedAt = prefs.getString('updated_at') ?? '';
+                        // Total amount
+                        totalAmount = cartProvider.getTotalPrice().toDouble();
+                        List<TestCart> cartItems = await _cartFuture;
+                        List<Map<String, dynamic>> cartItemsJson = cartItems.map((item) => item.toMap()).toList();
+                        String cartItemsString = jsonEncode(cartItemsJson);
+
+                        // ***********************8
                         String uniqueId = DateTime.now().millisecondsSinceEpoch.toString();
                         String formattedOrderId = "#ORDERID${uniqueId.substring(uniqueId.length - 4)}";
+                        // Prepare the details for printin
+                        // Log the details
+                        logger.i("User Details:");
+                        logger.i("  Name: $Childname");
+                        logger.i("  Relation: $childuserRelation");
+                        logger.i("  Phone: $ChilduserPhone");
+                        logger.i("  Date of Birth: $childuserdob");
+                        logger.i("  Gender: $Childusergender");
 
-                        Order order = Order(
-                          orderId: formattedOrderId,
-                          userId: widget.userId ?? '', // Provide a default value if null
-                          username: widget.username ?? '',
-                          email: widget.email ?? '',
-                          password: widget.password ?? '',
-                          mobile: widget.mobile ?? '',
-                          profileImg: widget.profileImg ?? '',
-                          role: widget.role ?? '',
-                          createdAt: widget.createdAt ?? '',
-                          updatedAt: widget.updatedAt ?? '',
-                          childName: widget.childName ?? '',
-                          childUserRelation: widget.childUserRelation ?? '',
-                          childUserPhone: widget.childUserPhone ?? '',
-                          childUserDob:  '',
-                          parentChildUserAddress: widget.parentChildUserAddress ?? '',
-                          childUserHouseNo: widget.childUserHouseNo ?? '',
-                          childUserPinCode: widget.childUserPinCode ?? '',
-                          childUserCity: widget.childUserCity ?? '',
-                          childUserState: widget.childUserState ?? '',
-                          selectedDate: widget.selectedDate ?? DateTime.now() , // Format DateTime or provide default
-                          startTime: widget.startTime ?? '',
-                          endTime: widget.endTime ?? '',
-                          totalAmount: widget.totalAmount ?? 0.0, // Provide a default value if null
-                          cartItems: widget.cartItemsString,
-                          orderStatus: 'PENDING',
-                          paymentStatus: 'PENDING', // This should be a non-null string
-                        );
+                        logger.i("Address Details:");
+                        logger.i("  Address: $ParentchilduserAddress");
+                        logger.i("  House No: $childuserHouseNo");
+                        logger.i("  Pin Code: $childuserPinCode");
+                        logger.i("  City: $childuserCity");
+                        logger.i("  State: $childuserState");
 
-                        await DBHelperOrderr.insertOrder(order);
+                        logger.i("Date and Time Details:");
+                        logger.i("  Selected Date: $selectedDate");
+                        logger.i("  Start Time: $startTime");
+                        logger.i("  End Time: $endTime");
+
+                        logger.i("User Preferences:");
+                        logger.i("  User ID: $_userId");
+                        logger.i("  Username: $_username");
+                        logger.i("  Email: $_email");
+                        logger.i("  Password: $_password");
+                        logger.i("  Mobile: $_mobile");
+                        logger.i("  Date of Birth: $_dob");
+                        logger.i("  Gender: $_gender");
+                        logger.i("  Profile Image: $_profileImg");
+                        logger.i("  Role: $_role");
+                        logger.i("  Created At: $_createdAt");
+                        logger.i("  Updated At: $_updatedAt");
+
+                        logger.i("Order Details:");
+                        logger.i("  Total Amount: $totalAmount");
+                        // Log cart items details
+                        logger.i("Cart Items Details:");
+                        for (var item in cartItemsJson) {
+                          logger.i("  Item ID: ${item['id']}");
+                          logger.i("  Rates: ${item['rates']}");
+                          logger.i("  Sample Collection: ${item['sampleColl']}");
+                          logger.i("  Reporting: ${item['reporting']}");
+                          logger.i("  Tests: ${item['tests']}");
+                        }
+                        // Define additional fields
+                        String orderStatus = 'Pending'; // Example values: 'Pending', 'Completed', 'Cancelled'
+                        String paymentStatus = 'Unpaid'; // Example values: 'Paid', 'Unpaid'
+                        String testReport = ''; // Example: URL or status of the test report
+                        String sampleCollected = 'No'; // Example values: 'Yes', 'No'
+                        DateTime orderDate = DateTime.now();
+                        // Create the order map
+                        final Map<String, dynamic> orderByPatientsDetails = {
+                          'userId': _userId,
+                          'username': _username,
+                          'email': _email,
+                          'password': _password,
+                          'mobile': _mobile,
+                          'dob':_dob,
+                          'gender':_gender,
+                          'profileImg': _profileImg,
+                          'role': _role,
+                          'createdAt': _createdAt,
+                          'updatedAt': _updatedAt,
+                          'childName': Childname,
+                          'childUserRelation': childuserRelation,
+                          'childUserPhone': ChilduserPhone,
+                          'childUserDob': childuserdob,
+                          'childuseremail':childuseremail,
+                          'parentChildUserAddress': ParentchilduserAddress,
+                          'childUserHouseNo': childuserHouseNo,
+                          'childUserPinCode': childuserPinCode,
+                          'childUserCity': childuserCity,
+                          'childUserState': childuserState,
+                          'orderDate': orderDate.toIso8601String(),
+                          'selectedDate': selectedDate?.toIso8601String(),
+                          'startTime': startTime,
+                          'endTime': endTime,
+                          'totalAmount': totalAmount,
+                          'cartItems': cartItemsJson,    //cartitem should be array of object
+                          'orderStatus': orderStatus,
+                          'paymentStatus': paymentStatus,
+                          'testReport': testReport,
+                          'sampleCollected': sampleCollected,
+                        };
+
+                      // Log the order object
+                        logger.i("Order Object: ${orderByPatientsDetails.toString()}");
+                        // Clear the cart
+                        await cartProvider.clearCart();
+                        // Order order = Order(
+                        //   orderId: formattedOrderId,
+                        //   userId: widget.userId ?? '', // Provide a default value if null
+                        //   username: widget.username ?? '',
+                        //   email: widget.email ?? '',
+                        //   password: widget.password ?? '',
+                        //   mobile: widget.mobile ?? '',
+                        //   profileImg: widget.profileImg ?? '',
+                        //   role: widget.role ?? '',
+                        //   createdAt: widget.createdAt ?? '',
+                        //   updatedAt: widget.updatedAt ?? '',
+                        //   childName: widget.childName ?? '',
+                        //   childUserRelation: widget.childUserRelation ?? '',
+                        //   childUserPhone: widget.childUserPhone ?? '',
+                        //   childUserDob:  '',
+                        //   parentChildUserAddress: widget.parentChildUserAddress ?? '',
+                        //   childUserHouseNo: widget.childUserHouseNo ?? '',
+                        //   childUserPinCode: widget.childUserPinCode ?? '',
+                        //   childUserCity: widget.childUserCity ?? '',
+                        //   childUserState: widget.childUserState ?? '',
+                        //   selectedDate: widget.selectedDate ?? DateTime.now() , // Format DateTime or provide default
+                        //   startTime: widget.startTime ?? '',
+                        //   endTime: widget.endTime ?? '',
+                        //   totalAmount: widget.totalAmount ?? 0.0, // Provide a default value if null
+                        //   cartItems: widget.cartItemsString,
+                        //   orderStatus: 'PENDING',
+                        //   paymentStatus: 'PENDING', // This should be a non-null string
+                        // );
+                        //
+                        // await DBHelperOrderr.insertOrder(order);
 
                         Navigator.pushAndRemoveUntil(
                           context,

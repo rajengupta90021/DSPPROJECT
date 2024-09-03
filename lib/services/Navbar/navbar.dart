@@ -40,6 +40,8 @@ class _NavBarState extends State<NavBar> {
   late String _password;
   late String _mobile;
   late String _profileImg;
+  late String _dob;
+  late String _gender;
   late String _role;
   late String _createdAt;
   late String _updatedAt;
@@ -72,6 +74,8 @@ class _NavBarState extends State<NavBar> {
       _role = prefs.getString('role') ?? '';
       _createdAt = prefs.getString('created_at') ?? '';
       _updatedAt = prefs.getString('updated_at') ?? '';
+      _dob= prefs.getString("dob")?? '';
+      _gender= prefs.getString("gender")?? '';
 
     });
   }
@@ -104,7 +108,10 @@ class _NavBarState extends State<NavBar> {
                                     builder: (context) => Userprofile(  username: _username,
                                       email: _email,
                                       mobile: _mobile,
-                                      profileimg: _profileImg,)));
+                                      profileimg: _profileImg,
+                                      dob:_dob,
+                                      gender:_gender
+                                    )));
                           },
                           child: Row(
                             children: [
