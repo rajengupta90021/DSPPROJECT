@@ -32,17 +32,18 @@ class _BookingTest3State extends State<BookingTest3> {
   DbHelper? dbhelper = DbHelper();
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-
+  bool _isLoading = true;
   @override
   void initState() {
-
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      Provider.of<CartProvider>(context, listen: false).loadTestInfos();
+      Provider.of<CartProvider>(context, listen: false).loadTestInfos().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
     });
-    // Internet().CheckInternet();
-
   }
 
 
@@ -137,6 +138,11 @@ class _BookingTest3State extends State<BookingTest3> {
             Expanded(
               child: Consumer<CartProvider>(
                 builder: (context, provider, _) {
+                  if (_isLoading) {
+                    // Show shimmer effect while loading
+                    return ShimmerCategoryListWidget();
+                  }
+
                   // Filtered test infos based on search query
                   List<TestInformation> filteredTestInfos = provider.testInfos.where((testInfo) {
                     return testInfo.tests!.toLowerCase().contains(_searchQuery);
@@ -145,7 +151,10 @@ class _BookingTest3State extends State<BookingTest3> {
                   // Display fetched and filtered data or "Test not available" message
                   return filteredTestInfos.isEmpty
                       ? Center(
-                      child: ShimmerCategoryListWidget()
+                    child: Text(
+                      'No items found',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+                    ),
                   )
                       : ListView.builder(
                     itemCount: filteredTestInfos.length,
@@ -243,7 +252,11 @@ class _BookingTest3State extends State<BookingTest3> {
                                 const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    const Icon(Icons.settings, color: Colors.black, size: 30),
+                                    Image.asset(
+                                      'assets/rupess.png', // Path to your image asset
+                                      height: 20,
+                                      width: 20,
+                                    ),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Text(

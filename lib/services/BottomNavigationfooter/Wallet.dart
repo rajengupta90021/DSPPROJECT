@@ -1,10 +1,7 @@
 import 'package:dspuiproject/services/BottomNavigationfooter/FaqSection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_selector/flutter_custom_selector.dart';
 
 import '../../constant/colors.dart';
-import '../Navbar/navbar.dart';
 
 class Wallet extends StatefulWidget {
   const Wallet({Key? key}) : super(key: key);
@@ -16,142 +13,130 @@ class Wallet extends StatefulWidget {
 class _WalletState extends State<Wallet> {
   @override
   Widget build(BuildContext context) {
+    // Get screen dimensions for responsiveness
+    final Size screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      // drawer: NavBar(),
       appBar: AppBar(
-        centerTitle:  true,
+        centerTitle: true,
         backgroundColor: iconcolor,
-        title: Text('Wallet',style: TextStyle(fontSize: 30),),
+        title: Text(
+          'Wallet',
+          style: TextStyle(fontSize: 24), // Adjusted font size for better fit
+        ),
       ),
-      body: Column(
-        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Container(
-            width: 450,
-            height: 150,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black), // Add border color
-              borderRadius: BorderRadius.circular(7),
-              color: iconcolor4,
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 140,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0), // Added padding for better spacing
+        child: Column(
+          children: [
+            Container(
+              width: screenSize.width, // Use full width
+              height: screenSize.height * 0.25, // Use 25% of the screen height
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(10),
+                color: iconcolor4,
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 10,
+                    left: 0,
+                    right: 0,
                     child: Center(
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Swasth point',
+                            'Swasth Point',
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 16,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(width: 8,),
-                          Icon(Icons.info_outline)
+                          SizedBox(width: 8),
+                          Icon(Icons.info_outline),
                         ],
                       ),
-
                     ),
                   ),
-                ),
-                Positioned(
-                  top: 40,
-                  left: 190,
-
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  Positioned(
+                    top: screenSize.height * 0.1, // Adjust based on screen height
+                    left: 0,
+                    right: 0,
                     child: Center(
-                      child: Row(
-                        children: [
-                          Text(
-                            '0',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 50,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(width: 8,),
-
-                        ],
+                      child: Text(
+                        '0',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 60, // Increased font size for emphasis
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-
                     ),
                   ),
-                ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  Positioned(
+                    top: 10,
+                    right: 10,
                     child: InkWell(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>FaqSection()));
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => FaqSection()),
+                        );
                       },
                       child: Icon(
                         Icons.mark_unread_chat_alt_outlined,
                         color: Colors.black,
-                        size: 24,
+                        size: 28, // Increased icon size for better touch target
                       ),
                     ),
                   ),
-                ),
-              ],
-
+                ],
+              ),
             ),
-
-          ),
-
-          Container(
-            width: 450,
-            height: 390,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black), // Add border color
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Transaction',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+            SizedBox(height: 20),
+            Expanded(
+              child: Container(
+                width: screenSize.width, // Use full width
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                SizedBox(height: 20), // Adjust the spacing between the text and 'No wallet transaction' as needed
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      'No wallet transaction',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0), // Added padding for better spacing
+                      child: Text(
+                        'Transaction',
+                        style: TextStyle(
+                          fontSize: 20, // Increased font size for emphasis
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
+                    SizedBox(height: 20),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          'No wallet transactions',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18, // Increased font size for better readability
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-
-
-
-        ],
-
+          ],
+        ),
       ),
-
-
     );
   }
 }

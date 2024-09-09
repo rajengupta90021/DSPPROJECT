@@ -6,16 +6,15 @@ import '../../../../Model/ChildMember.dart';
 import '../../../../SharedPreferecneService/SharedPreferenceSerivice.dart';
 import '../../../../constant/colors.dart';
 import '../../../../repository/ChildMemberRepository.dart';
-import '../../../../widgets/ShimmerEffect.dart';
-import '../../../family_member_widgets/AddFamilyMember2.dart';
+import '../../widgets/ShimmerEffect.dart';
+import '../family_member_widgets/AddFamilyMember2.dart';
 
-
-class FamilyMemeberReport extends StatefulWidget {
+class MyFamily extends StatefulWidget {
   @override
-  _FamilyMemeberReportState createState() => _FamilyMemeberReportState();
+  _MyFamilyState createState() => _MyFamilyState();
 }
 
-class _FamilyMemeberReportState extends State<FamilyMemeberReport> {
+class _MyFamilyState extends State<MyFamily> {
   final ChildMemberRepository _repository = ChildMemberRepository();
   late Future<List<childmember>> _futureMembers;
   String? userId;
@@ -113,6 +112,18 @@ class _FamilyMemeberReportState extends State<FamilyMemeberReport> {
                               ),
                             ),
                             SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddFamilyMember2(),
+                                  ),
+                                );
+                                _refreshData(); // Refresh data after adding a member
+                              },
+                              child: Text('Add Member'),
+                            ),
                           ],
                         ),
                       ),
@@ -203,29 +214,10 @@ class _FamilyMemeberReportState extends State<FamilyMemeberReport> {
                   }
                 },
               ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddFamilyMember2()),
-                );
-                _refreshData();
-                _refreshData();
-              },
-              child: Text('Add Family Member',style: TextStyle(color: Colors.black),),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: iconcolor,
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 80),
-                textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
+            )
           ],
         ),
       ),
     );
   }
-
 }

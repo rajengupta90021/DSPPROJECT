@@ -110,16 +110,8 @@ class LoginController with ChangeNotifier {
       List<String> parts = coordinates.split('\n');
       String latPart = parts[0].replaceAll('Latitude: ', '');
       String lonPart = parts[1].replaceAll('Longitude: ', '');
-
-
       // Save latitude and longitude to SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('latitude', latPart);
-      await prefs.setString('longitude', lonPart);
-      await prefs.setString('address', address);
-
-
-      // Optionally, you can print the saved data for debugging purposes
+      await _sharedPreferencesService.saveLocationData(latPart, lonPart, address);
       print("Saved Latitude: $latPart");
       print("Saved Longitude: $lonPart");
       print("Saved Address: $address");

@@ -1,7 +1,6 @@
 import 'package:dspuiproject/constant/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import '../../provider/controller/loginController.dart';
 import '../../services/auth/signup_screen.dart';
@@ -25,12 +24,19 @@ class _loginscreenState extends State<loginscreen> {
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final _auth = FirebaseAuth.instance;
+  bool obscureText = true; // Boolean to manage password visibility
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      obscureText = !obscureText; // Toggle the password visibility
+    });
   }
 
   @override
@@ -77,7 +83,7 @@ class _loginscreenState extends State<loginscreen> {
                                     decoration: buildInputDecoration(
                                       hintText: "Email",
                                       prefixIcon: Icons.alternate_email,
-                                      iconColor: iconcolor,
+                                      iconColor: Colors.black, // Assuming iconcolor is Colors.black
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -88,6 +94,7 @@ class _loginscreenState extends State<loginscreen> {
                                         );
                                         return "Enter email";
                                       }
+                                      String email = value.trim().toLowerCase(); // Convert email to lowercase
                                       return null;
                                     },
                                   ),
@@ -95,11 +102,39 @@ class _loginscreenState extends State<loginscreen> {
                                   TextFormField(
                                     keyboardType: TextInputType.text,
                                     controller: passwordController,
-                                    obscureText: true,
-                                    decoration: buildInputDecoration(
+                                    obscureText: obscureText, // Use the boolean to manage visibility
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
                                       hintText: "Password",
-                                      prefixIcon: Icons.password_rounded,
-                                      iconColor: iconcolor,
+                                      hintStyle: TextStyle(color: Colors.grey[600]),
+                                      prefixIcon: Icon(Icons.password_rounded, color: Colors.black),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          obscureText ? Icons.visibility_off : Icons.visibility,
+                                          color: Colors.black,
+                                        ),
+                                        onPressed: _togglePasswordVisibility, // Toggle password visibility
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(color: Colors.black, width: 1.0),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(color:  iconcolor, width: 2.0),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(color: Colors.red, width: 1.0),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(color: Colors.red, width: 2.0),
+                                      ),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -138,13 +173,15 @@ class _loginscreenState extends State<loginscreen> {
                             SizedBox(height: 10),
                             roundedbotton(
                               title: "Login",
-
                               onTap: () {
                                 if (formKey.currentState?.validate() ?? false) {
+                                  String email = emailController.text.trim().toLowerCase(); // Convert email to lowercase
+                                  String password = passwordController.text;
+
                                   provider.loginWithApi(
                                     context,
-                                    emailController.text,
-                                    passwordController.text,
+                                    email,
+                                    password,
                                   );
                                 }
                               },
@@ -222,7 +259,7 @@ class _loginscreenState extends State<loginscreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
-        borderSide: BorderSide(color: iconcolor, width: 2.0),
+        borderSide: BorderSide(color:  iconcolor, width: 2.0),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),

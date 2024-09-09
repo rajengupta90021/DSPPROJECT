@@ -34,7 +34,8 @@ class _SupportPageState extends State<SupportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text('DSP Support')),
+        centerTitle: true,
+        title: Text('DSP Support'),
         backgroundColor: iconcolor,
         elevation: 0,
       ),

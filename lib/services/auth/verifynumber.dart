@@ -1,4 +1,5 @@
 import 'dart:async'; // Import for Timer
+import 'package:dspuiproject/helper/LocationService.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pinput/pinput.dart';
@@ -183,6 +184,7 @@ class _VerifyCodeState extends State<VerifyCode> {
 
             if (userData != null) {
               _sharedPreferencesService.saveUserData(userData);
+              await _fetchAndStoreLocation();
 
               SnackBarUtils.showSuccessSnackBar(
                 context,
@@ -225,6 +227,29 @@ class _VerifyCodeState extends State<VerifyCode> {
     );
   }
 
+  Future<void> _fetchAndStoreLocation() async {
+
+    setState(() {
+      _isLoading = true; // Hide loading indicator
+    });
+    LocationService locationService = LocationService();
+
+    // Call checkPermission with a callback
+    await locationService.checkPermission((coordinates, address) async {
+      // Extract latitude and longitude from coordinates
+      List<String> parts = coordinates.split('\n');
+      String latPart = parts[0].replaceAll('Latitude: ', '');
+      String lonPart = parts[1].replaceAll('Longitude: ', '');
+      // Save latitude and longitude to SharedPreferences
+      await _sharedPreferencesService.saveLocationData(latPart, lonPart, address);
+      print("Saved Latitude: $latPart");
+      print("Saved Longitude: $lonPart");
+      print("Saved Address: $address");
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      }); // Stop loading
+    });
+  }
   void _handleVerificationFailure(Object error) {
     String message;
 

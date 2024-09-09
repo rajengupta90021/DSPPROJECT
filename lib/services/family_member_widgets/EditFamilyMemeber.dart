@@ -163,6 +163,9 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                       ),
                       keyboardType: TextInputType.phone,
                       maxLength: 13, // Limit input to 13 characters (+, country code, and 10 digits)
+                      onChanged: (value) {
+                        formkey.currentState?.validate();
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Please enter a mobile number";
@@ -186,6 +189,9 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
                         labelText: 'Full Name',
                       ),
+                      onChanged: (value) {
+                        formkey.currentState?.validate();
+                      },
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "enter full name ";
@@ -201,6 +207,9 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                         labelText: 'Email ID',
                       ),
                       keyboardType: TextInputType.emailAddress,
+                      onChanged: (value) {
+                        formkey.currentState?.validate();
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Please enter an email address";
@@ -274,6 +283,9 @@ class _AddFamilyMember2State extends State<EditFamilyMemeber> {
                       readOnly: true,
                       onTap: () {
                         _selectdate();
+                      },
+                      onChanged: (value) {
+                        formkey.currentState?.validate();
                       },
                       validator: (value) {
                         if (value!.isEmpty) {

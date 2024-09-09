@@ -87,4 +87,45 @@ class SharedPreferencesService {
       print('Exception occurred while updating user data in SharedPreferences: $e');
     }
   }
+
+
+  // Method to save location data
+  Future<void> saveLocationData(String latitude, String longitude, String address) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('latitude', latitude);
+      await prefs.setString('longitude', longitude);
+      await prefs.setString('address', address);
+      print("Saved Latitude: $latitude");
+      print("Saved Longitude: $longitude");
+      print("Saved Address: $address");
+    } catch (e) {
+      print('Exception occurred while saving location data in SharedPreferences: $e');
+    }
+  }
+
+  // Method to get location data
+  Future<Map<String, String?>> getLocationData() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? latitude = prefs.getString('latitude');
+      String? longitude = prefs.getString('longitude');
+      String? address = prefs.getString('address');
+      print("Retrieved Latitude: $latitude");
+      print("Retrieved Longitude: $longitude");
+      print("Retrieved Address: $address");
+      return {
+        'latitude': latitude,
+        'longitude': longitude,
+        'address': address,
+      };
+    } catch (e) {
+      print('Exception occurred while retrieving location data from SharedPreferences: $e');
+      return {
+        'latitude': null,
+        'longitude': null,
+        'address': null,
+      };
+    }
+  }
 }

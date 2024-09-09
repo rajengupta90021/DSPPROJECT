@@ -15,12 +15,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         elevation: 100,
         backgroundColor: iconcolor,
-        title: Padding(
-          padding: const EdgeInsets.all(50.0),
-          child: Text('My Subscription'),
-        ), // Title in the app bar
+        title: Text('My Subscription'), // Title in the app bar
         leading: IconButton(
           icon: Icon(Icons.arrow_back), // Back arrow icon
           onPressed: () {

@@ -11,6 +11,7 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Model/MyOrder.dart';
 import '../../Model/TestInformation.dart';
+import '../../Notification_service/NotificationService.dart';
 import '../../constant/colors.dart';
 import '../../dbHelper/DbHelper.dart';
 import '../../provider/AddressControlller.dart';
@@ -72,14 +73,6 @@ class _PaymentMethodState extends State<PaymentMethod> {
   @override
   void initState() {
     _cartFuture = Provider.of<CartProvider>(context, listen: false).getData();
-    AwesomeNotifications().setListeners(
-        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-        onNotificationCreatedMethod:
-        NotificationController.onNotificationCreatedMethod,
-        onNotificationDisplayedMethod:
-        NotificationController.onNotificationDisplayedMethod,
-        onDismissActionReceivedMethod:
-        NotificationController.onDismissActionReceivedMethod);
     super.initState();
   }
 
@@ -334,33 +327,61 @@ class _PaymentMethodState extends State<PaymentMethod> {
                     ),
                   ],
                 ),
-                Divider(height: 30, color: Colors.grey,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Divider(height: 10, color: Colors.grey,),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Total Payment",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Consumer<CartProvider>(
-                      builder: (context, cart, child) {
-                        int subtotal = cart.getTotalPrice(); // Use correct subtotal calculation
-                        return Text(
-                          '\₹ ${subtotal + 50}', // Add shipping fee
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Discount",
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: Colors.redAccent,
+                            color: Colors.grey,
                           ),
-                        );
-                      },
+                        ),
+                        Text(
+                          '\₹ 50', // Fixed discount amount
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.green, // Color for discount text
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8), // Add some spacing between Discount and Total Payment
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Total Payment",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Consumer<CartProvider>(
+                          builder: (context, cart, child) {
+                            int subtotal = cart.getTotalPrice(); // Use correct subtotal calculation
+                            return Text(
+                              '\₹ ${subtotal + 50 - 50}', // Adjust subtotal by subtracting discount and adding shipping fee
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.redAccent,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
+
                 SizedBox(height: 40,),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -390,16 +411,16 @@ class _PaymentMethodState extends State<PaymentMethod> {
                       confirmBtnText: 'OK',
                       onConfirmBtnTap: () async {
 
-                        AwesomeNotifications().createNotification(
-                          content: NotificationContent(
-                              id: 1,
-                              channelKey: "basic_channel",
-                              title: "Hello User!",
-                              body: "Yay! Thank you for Connecting with us.",
-                            icon: 'resource://drawable/launcher_icon',
-                            notificationLayout: NotificationLayout.BigPicture,
-                          ),
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        await showNotification(
+                          title: "Order confirmed,  ${ _username = prefs.getString('name') ?? ''}",
+                          body: "🎉 Your order has been successfully placed! 🚀 \n Thank you for connecting with us.",
 
+                          // summary: "Thissss is Basic Summary",
+                          notificationLayout: NotificationLayout.BigPicture,
+
+                          bigPicture:
+                          "resource://drawable/launcher_icon",
                         );
                         final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
@@ -412,7 +433,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
                         final selectedMemberProvider = Provider.of<SelectedMemberProvider>(context, listen: false);
                         final addressProvider = Provider.of<AddressProvider>(context, listen: false);
                         final dateTimeProvider = Provider.of<DateTimeProvider>(context, listen: false);
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
+
                         // Gather data
                         Childname = selectedMemberProvider.name;
                         childuserRelation = selectedMemberProvider.relation;
@@ -526,11 +547,11 @@ class _PaymentMethodState extends State<PaymentMethod> {
                           'childUserCity': childuserCity,
                           'childUserState': childuserState,
                           'orderDate': orderDate.toIso8601String(),
-                          'selectedDate': selectedDate?.toIso8601String(),
+                            'selectedDate': selectedDate?.toIso8601String(),
                           'startTime': startTime,
                           'endTime': endTime,
                           'totalAmount': totalAmount,
-                          'cartItems': cartItemsJson,    //cartitem should be array of object
+                          'cartItems': cartItemsJson,
                           'orderStatus': orderStatus,
                           'paymentStatus': paymentStatus,
                           'testReport': testReport,

@@ -2,12 +2,14 @@ import 'package:dspuiproject/constant/colors.dart';
 import 'package:dspuiproject/provider/UserImageComtroller.dart';
 import 'package:dspuiproject/services/BottomNavigationfooter/FaqSection.dart';
 import 'package:dspuiproject/services/BottomNavigationfooter/Wallet.dart';
+import 'package:dspuiproject/services/Navbar/MyFamily.dart';
 import 'package:dspuiproject/services/home_page2.dart';
 import 'package:dspuiproject/services/userLoggedinProfilepage/UserProfile.dart';
 import 'package:dspuiproject/helper/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,8 +25,12 @@ import '../BottomNavigationfooter/NavigationMenu.dart';
 import '../auth/login_screen.dart';
 import 'AccountSetting/AccountSettingpage.dart';
 import 'AccountSetting/MyOrder.dart';
+import 'FaqSection.dart';
 import 'Navbar_Subscription.dart';
 import 'ReportandIssue.dart';
+import 'TermsAndConditionsPage.dart';
+import 'VlogPreference.dart';
+import 'WellnessPage.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({Key? key});
@@ -188,7 +194,11 @@ class _NavBarState extends State<NavBar> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.subscriptions), // Add icon for My Subscription
+            leading: Image.asset(
+              'assets/subscription.png', // Path to your image asset
+              height: 30,
+              width: 30,
+            ), // Add icon for My Subscription
             title: Text('My Subscription'),
             onTap: () async {
               bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
@@ -204,7 +214,11 @@ class _NavBarState extends State<NavBar> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.shopping_bag), // Add icon for My Order
+            leading: Image.asset(
+              'assets/myorder.png', // Path to your image asset
+              height: 30,
+              width: 30,
+            ), // Add icon for My Order
             title: Text('My Order'),
             onTap: () async {
               bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
@@ -220,14 +234,31 @@ class _NavBarState extends State<NavBar> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.local_hospital), // Add icon for Wellness
+            leading: Image.asset(
+              'assets/wellness.png', // Path to your image asset
+              height: 30,
+              width: 30,
+            ), // Add icon for Wellness
             title: Text('Wellness'),
-            onTap: () {
-              // Handle tap on Wellness
+            onTap: () async {
+              bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
+              if (isLoggedIn) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => WellnessPage()),
+                );
+              } else {
+                Navigator.pop(context); // Close the drawer
+                LoginandLoginLaterpage.show(context, 'My Setting');
+              }
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings), // Add icon for Settings
+            leading: Image.asset(
+              'assets/setting.png', // Path to your image asset
+              height: 25,
+              width: 25,
+            ), // Add icon for Settings
             title: Text('Settings'),
             onTap: () async {
               bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
@@ -243,7 +274,11 @@ class _NavBarState extends State<NavBar> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.account_balance_wallet), // Add icon for Wallet
+            leading: Image.asset(
+              'assets/wallets.png', // Path to your image asset
+              height: 30,
+              width: 30,
+            ),// Add icon for Wallet
             title: Text('Wallet'),
             onTap: () async {
               bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
@@ -259,14 +294,35 @@ class _NavBarState extends State<NavBar> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.video_library), // Add icon for Vlog Preference
-            title: Text('Vlog Preference'),
-            onTap: () {
-              // Handle tap on Vlog Preference
+            leading: Image.asset(
+              'assets/myfamily.png', // Path to your image asset
+              height: 30,
+              width: 30,
+            ), // Add icon for Vlog Preference
+            title: Text('My family'),
+            onTap: () async {
+              bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
+              if (isLoggedIn) {
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => VlogPreference()),
+                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyFamily()),
+                );
+              } else {
+                Navigator.pop(context); // Close the drawer
+                LoginandLoginLaterpage.show(context, 'Report and issue');
+              }
             },
           ),
           ListTile(
-            leading: Icon(Icons.report), // Add icon for Report an Issue
+            leading: Image.asset(
+              'assets/reportissue.png', // Path to your image asset
+              height: 30,
+              width: 30,
+            ), // Add icon for Report an Issue
             title: Text('Report an Issue'),
             onTap: () async {
               bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
@@ -282,10 +338,21 @@ class _NavBarState extends State<NavBar> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.help_outline), // Add icon for FAQ
+            leading:Image.asset(
+              'assets/faq.png', // Path to your image asset
+              height: 30,
+              width: 30,
+            ), // Add icon for FAQ
             title: Text('FAQ'),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => FaqSection()));
+            onTap: () async {
+              bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
+              if (isLoggedIn) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => FaqSectionNavBar()));
+              } else {
+                Navigator.pop(context); // Close the drawer
+                LoginandLoginLaterpage.show(context, 'Report and issue');
+              }
+
             },
           ),
           Divider(),
@@ -356,6 +423,12 @@ class _NavBarState extends State<NavBar> {
                     TextSpan(
                       text: 'Terms and Conditions',
                       style: TextStyle(fontSize: 12, color: Colors.blue, decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()..onTap = () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => TermsAndConditionsPage()),
+                        );
+                      },
                     ),
                   ],
                 ),

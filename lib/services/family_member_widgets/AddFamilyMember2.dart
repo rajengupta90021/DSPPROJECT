@@ -32,6 +32,8 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
   final formkey = GlobalKey<FormState>();
   SharedPreferencesService SharedPreferencesServicee = SharedPreferencesService();
   Gender selectedGender = Gender.Others;
+  String? relationError;
+  String? dobError; // State variable for date of birth error
 
   ChildMemberRepository ChildMemberRepositoryy= ChildMemberRepository();
   @override
@@ -104,6 +106,9 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                       ),
                       keyboardType: TextInputType.phone,
                       maxLength: 13, // Limit input to 13 characters (+, country code, and 10 digits)
+                      onChanged: (value) {
+                        formkey.currentState?.validate();
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Please enter a mobile number";
@@ -126,6 +131,9 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
                         labelText: 'Full Name',
                       ),
+                      onChanged: (value) {
+                        formkey.currentState?.validate();
+                      },
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "Please enter full name";
@@ -154,9 +162,12 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                         labelText: 'Email ID',
                       ),
                       keyboardType: TextInputType.emailAddress,
+                      onChanged: (value) {
+                        formkey.currentState?.validate();
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Please enter an email address";
+                          return null;
                         }
 
                         // Regular expression to validate email format
@@ -175,6 +186,10 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                       onChanged: (newValue) {
                         setState(() {
                           dropdownValue = newValue;
+                          if (dropdownValue != null) {
+                            // Clear the error message when a valid selection is made
+                            relationError = null;
+                          }
                         });
                       },
                       items: [
@@ -206,14 +221,19 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                       decoration: InputDecoration(
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
                         labelText: 'Relation',
+                        errorText: relationError, // Display the error message if present
                       ),
                       validator: (value) {
-                        if (value == null) {
-                          return "Please select relation";
+                        if (value == null || value.isEmpty) {
+                          setState(() {
+                            relationError = "Please select a relation";
+                          });
+                          return null; // Return null to prevent form submission
                         }
-                        return null;
+                        return null; // Return null if no error
                       },
                     ),
+
                     SizedBox(height: 10),
                     TextFormField(
                       controller: _datecontroller,
@@ -222,14 +242,21 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                         labelText: 'Date of birth',
                         prefixIcon: Icon(Icons.calendar_today),
                         contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
+                        errorText: dobError, // Display error text if present
                       ),
                       readOnly: true,
                       onTap: () {
                         _selectdate();
                       },
+                      onChanged: (value) {
+                        formkey.currentState?.validate();
+                      },
                       validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Please select date of birth";
+                        if (value == null || value.isEmpty) {
+                          setState(() {
+                            dobError = "Please select date of birth"; // Set error message if empty
+                          });
+                          return null;
                         }
                         return null;
                       },
@@ -293,7 +320,7 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
                  //   context,
                  //   "User child created successfully",
                  // );
-                 SnackBarUtils.showSuccessSnackBar(context,   "User child created successfully");
+                 SnackBarUtils.showSuccessSnackBar(context,   "family  created successfully");
                  Navigator.of(context).pop();
                  // Navigator.push(context, MaterialPageRoute(builder: (context) => NavigationMenu()));
                  Navigator.of(context).pop();
@@ -329,6 +356,7 @@ class _AddFamilyMember2State extends State<AddFamilyMember2> {
     if (_picked != null && _picked.isBefore(currentDate)) {
       setState(() {
         _datecontroller.text = _picked.toLocal().toString().split(" ")[0]; // Format the date
+        dobError=null;
       });
     } else if (_picked != null && _picked.isAfter(currentDate)) {
       // Optionally show a message if an invalid date is picked (future date)

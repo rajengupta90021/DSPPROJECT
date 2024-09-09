@@ -1,4 +1,5 @@
 import 'package:dspuiproject/Model/UserInfo.dart';
+import 'package:dspuiproject/SharedPreferecneService/SharedPreferenceSerivice.dart';
 import 'package:dspuiproject/constant/colors.dart';
 import 'package:dspuiproject/helper/LocationService.dart';
 import 'package:dspuiproject/services/auth/VerifyNumberRegister.dart';
@@ -37,17 +38,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final passwordcontroller = TextEditingController();
   final phonecontroller = TextEditingController();
   final otpcontroller = TextEditingController();
+  final SharedPreferencesService _sharedPreferencesService = SharedPreferencesService();
   bool isotpsent =false;
   String _verificationId = '';
   final formkey = GlobalKey<FormState>();
   String _countryCode = '+91';
   var code = "";
   bool loading = false;
+  bool obscureText = true; // Boolean to manage password visibility
 
   List<UserData> userdata= [];
 
 
   FirebaseAuth _auth= FirebaseAuth.instance;
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      obscureText = !obscureText; // Toggle the password visibility
+    });
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -119,7 +129,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       await _auth.signInWithCredential(credential);
       var userData = {
         'name': usernamecontroller.text.trim(),
-        'email': emailcontroller.text.trim(),
+        'email': emailcontroller.text.trim().toLowerCase(),
         'password': passwordcontroller.text.trim(),
         'mobile': phonecontroller.text.trim(),
       };
@@ -159,11 +169,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
 
       // Save latitude and longitude to SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('latitude', latPart);
-      await prefs.setString('longitude', lonPart);
-      await prefs.setString('address', address);
-
+      await _sharedPreferencesService.saveLocationData(latPart, lonPart, address);
 
       // Optionally, you can print the saved data for debugging purposes
       print("Saved Latitude: $latPart");
@@ -242,8 +248,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     if (value == null || value.isEmpty) {
                                       return "Please enter an email address";
                                     }
+                                    String lowercasedEmail = value.trim().toLowerCase(); // Convert email to lowercase
                                     RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                                    if (!emailRegex.hasMatch(value)) {
+                                    if (!emailRegex.hasMatch(lowercasedEmail)) {
                                       return "Please enter a valid email address";
                                     }
                                     return null;
@@ -253,15 +260,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 TextFormField(
                                   keyboardType: TextInputType.text,
                                   controller: passwordcontroller,
-                                  obscureText: true,
-                                  decoration: buildInputDecoration(
-                                    hintText: "password",
-                                    prefixIcon: Icons.password_rounded,
-                                    iconColor: iconcolor,
+                                  obscureText: obscureText, // Use the boolean to manage visibility
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                                    hintText: "Password",
+                                    hintStyle: TextStyle(color: Colors.grey[600]),
+                                    prefixIcon: Icon(Icons.password_rounded, color: Colors.black),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        obscureText ? Icons.visibility_off : Icons.visibility,
+                                        color: Colors.black,
+                                      ),
+                                      onPressed: _togglePasswordVisibility, // Toggle password visibility
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      borderSide: BorderSide(color: Colors.black, width: 1.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      borderSide: BorderSide(color: iconcolor, width: 2.0), // Assuming iconcolor is Colors.blue
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      borderSide: BorderSide(color: Colors.red, width: 1.0),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      borderSide: BorderSide(color: Colors.red, width: 2.0),
+                                    ),
                                   ),
                                   validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return "enter password";
+                                    if (value == null || value.isEmpty) {
+                                      Utils.flushBarErrorMessage(
+                                        "Enter password",
+                                        Colors.red,
+                                        context,
+                                      );
+                                      return "Enter password";
                                     }
                                     return null;
                                   },

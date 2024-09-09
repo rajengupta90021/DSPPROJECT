@@ -20,6 +20,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'Notification_service/NotificationService.dart';
 import 'helper/Internet.dart';
 
 void main() async {
@@ -39,33 +40,35 @@ void main() async {
   // );
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    // name: 'DSPMAIN',
+    // name: 'DSPMAIN1',
     options: const FirebaseOptions(
-      apiKey: "AIzaSyCBQdQ1Ok9JJI4H1wTfu0ILM1wEWfACHms",
-      appId: "1:168903079919:android:118fcafb7d3f957ec8e81a",
-      messagingSenderId: "168903079919",
-      projectId: "dspmain-81494",
-      storageBucket: "dspmain-81494.appspot.com",
+      apiKey: "AIzaSyAgi7px3lFKGdpcAIlyaXDuqynAmtTlAoM",
+      appId: "1:22914578230:android:d581f01cbacac93e12e597",
+      messagingSenderId: "22914578230",
+      projectId: "dspmain1",
+      storageBucket: "dspmain1.appspot.com",
     ),
   );
 
-  SharedPreferences   prefs = await SharedPreferences.getInstance();
-  await AwesomeNotifications().initialize( 'resource://drawable/launcher_icon', [
-    NotificationChannel(
-      channelGroupKey: "basic_channel_group",
-      channelKey: "basic_channel",
-      channelName: "Basic Notification",
-      channelDescription: "Basic notifications channel",
-      ledColor: iconcolor,
-      icon: 'resource://drawable/launcher_icon',
 
-    )
-  ], channelGroups: [
-    NotificationChannelGroup(
-      channelGroupKey: "basic_channel_group",
-      channelGroupName: "Basic Group",
-    )
-  ]);
+  SharedPreferences   prefs = await SharedPreferences.getInstance();
+  await initializeNotification();
+  // await AwesomeNotifications().initialize( 'resource://drawable/launcher_icon', [
+  //   NotificationChannel(
+  //     channelGroupKey: "basic_channel_group",
+  //     channelKey: "basic_channel",
+  //     channelName: "Basic Notification",
+  //     channelDescription: "Basic notifications channel",
+  //     ledColor: iconcolor,
+  //     icon: 'resource://drawable/launcher_icon',
+  //
+  //   )
+  // ], channelGroups: [
+  //   NotificationChannelGroup(
+  //     channelGroupKey: "basic_channel_group",
+  //     channelGroupName: "Basic Group",
+  //   )
+  // ]);
   bool isAllowedToSendNotification =
   await AwesomeNotifications().isNotificationAllowed();
   if (!isAllowedToSendNotification) {
@@ -76,7 +79,7 @@ void main() async {
 }
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   // This widget is the root of your application.
   @override

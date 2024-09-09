@@ -1,6 +1,9 @@
+import 'package:dspuiproject/services/BottomNavigationfooter/NavigationMenu.dart';
+import 'package:dspuiproject/widgets/SnackBarUtils.dart';
 import 'package:flutter/material.dart';
 
 import '../../constant/colors.dart';
+import '../../helper/utils.dart';
 
 
 class ReportIssuePage extends StatefulWidget {
@@ -16,7 +19,9 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('Report An Issue'),
+        backgroundColor: iconcolor,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -57,6 +62,15 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle submit action
+
+                    Utils().toastmessage("thank you for the report", Colors.green);
+                    Future.delayed(Duration(seconds: 1), () {
+                      // Navigate to NavigationMenu after delay
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => NavigationMenu()),
+                      );
+                    });
                     print(_feedbackController.text);
                   },
                   child: Text('SUBMIT',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 17),),
