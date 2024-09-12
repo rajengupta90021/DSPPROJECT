@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Model/MyOrder.dart';
+import '../../../Model/MyOrderDetails.dart';
 import '../../../constant/colors.dart';
 import '../../../dbHelper/DbHelper.dart';
+import '../../../repository/OrderDetailsRepository.dart';
 import 'MyOrderDetails.dart';
 
 class MyOrderDetails extends StatefulWidget {
@@ -16,9 +18,9 @@ class MyOrderDetails extends StatefulWidget {
 }
 
 class _MyOrderDetailsState extends State<MyOrderDetails> {
-  late Future<List<Order>> _ordersFuture;
+  late Future<List<OrderDetails>> _ordersFuture;
+  final OrderDetailsRepository _orderDetailsRepository = OrderDetailsRepository();
   late String _userId;
-  final dbHelper = DBHelperOrder();
 
   @override
   void initState() {
@@ -26,11 +28,12 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
     _ordersFuture = _fetchOrders();
   }
 
-  Future<List<Order>> _fetchOrders() async {
+  Future<List<OrderDetails>> _fetchOrders() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _userId = prefs.getString('user_id') ?? '';
-    final ordersMaps = await dbHelper.getOrders(_userId);
-    return ordersMaps.map((map) => Order.fromMap(map)).toList();
+
+    // Ensure the correct variable is used
+    return _orderDetailsRepository.getOrdersByUserId(_userId);
   }
 
   @override
@@ -42,7 +45,7 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
         title: Text("My Orders",style: TextStyle(fontWeight: FontWeight.bold),),
         backgroundColor: iconcolor,
       ),
-      body: FutureBuilder<List<Order>>(
+      body: FutureBuilder<List<OrderDetails>>(
         future: _ordersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -73,17 +76,16 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
             itemCount: orders.length,
             itemBuilder: (context, index) {
               final order = orders[index];
-              List<dynamic> cartItemsList = jsonDecode(order.cartItems);
-              // String cartItemsFormatted = cartItemsList.map((item) {
-              //   return '${item['tests']},';
-              // }).join('\n');
+
+              // Assuming `order.cartItems` is already a List of CartItems
+              List<CartItems> cartItemsList = order.cartItems as List<CartItems>;
               String cartItemsFormatted = cartItemsList.asMap().entries.map((entry) {
                 int index = entry.key + 1;
                 var item = entry.value;
-
-                // Return formatted string
-                return '$index. ${item['tests']}';
+                return '$index. ${item.tests}'; // Adjust based on your CartItems model
               }).join('\n');
+
+
 
 
               return Card(
@@ -115,7 +117,7 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  order.orderId,
+                                  order.OrderId ?? 'No Order ID', // Default value if OrderId is null
                                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                 ),
                                 Text(
@@ -134,7 +136,7 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                               child: Text(
-                                order.orderStatus,
+                                order.orderStatus ?? 'no order status',
                                 style: TextStyle(fontSize: 16, color: Colors.blueAccent),
                               ),
                             ),
@@ -175,7 +177,7 @@ class _MyOrderDetailsState extends State<MyOrderDetails> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => OrderDetailsPage(order: order),
+                                  builder: (context) => OrderDetailsPage(orderDetails: order),
                                 ),
                               );
                             },

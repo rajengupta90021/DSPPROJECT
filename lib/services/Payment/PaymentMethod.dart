@@ -19,6 +19,7 @@ import '../../provider/CartProvider.dart';
 import '../../provider/DateTimeProvider.dart';
 import '../../provider/NotificationController.dart';
 import '../../provider/SelectedMemberProvider.dart';
+import '../../repository/OrderDetailsRepository.dart';
 
 class PaymentMethod extends StatefulWidget {
 
@@ -30,6 +31,7 @@ class PaymentMethod extends StatefulWidget {
 }
 
 class _PaymentMethodState extends State<PaymentMethod> {
+  final OrderDetailsRepository _repository = OrderDetailsRepository();
   int type = 4; // Default to Cash On Delivery
   // **************
   String? _userId;
@@ -67,7 +69,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
   void handleRadio(int? e) => setState(() {
     type = e!;
   });
-  DBHelperOrder DBHelperOrderr= DBHelperOrder();
+
 
 
   @override
@@ -470,8 +472,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
                         String cartItemsString = jsonEncode(cartItemsJson);
 
                         // ***********************8
-                        String uniqueId = DateTime.now().millisecondsSinceEpoch.toString();
-                        String formattedOrderId = "#ORDERID${uniqueId.substring(uniqueId.length - 4)}";
+
                         // Prepare the details for printin
                         // Log the details
                         logger.i("User Details:");
@@ -518,14 +519,18 @@ class _PaymentMethodState extends State<PaymentMethod> {
                           logger.i("  Tests: ${item['tests']}");
                         }
                         // Define additional fields
-                        String orderStatus = 'Pending'; // Example values: 'Pending', 'Completed', 'Cancelled'
-                        String paymentStatus = 'Unpaid'; // Example values: 'Paid', 'Unpaid'
-                        String testReport = ''; // Example: URL or status of the test report
-                        String sampleCollected = 'No'; // Example values: 'Yes', 'No'
+                        String orderStatus = 'Completed'; // Example values: 'Pending', 'Completed', 'Cancelled'
+                        String paymentStatus = 'Paid'; // Example values: 'Paid', 'Unpaid'
+                        String testReport = 'Generated'; // Example: URL or status of the test report
+                        String sampleCollected = 'NO'; // Example values: 'Yes', 'No'
                         DateTime orderDate = DateTime.now();
+
+                        String uniqueId = DateTime.now().millisecondsSinceEpoch.toString();
+                        String OrderId = "#ORDERID${uniqueId.substring(uniqueId.length - 4)}";
                         // Create the order map
                         final Map<String, dynamic> orderByPatientsDetails = {
                           'userId': _userId,
+                          'OrderId':OrderId,
                           'username': _username,
                           'email': _email,
                           'password': _password,
@@ -560,38 +565,22 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
                       // Log the order object
                         logger.i("Order Object: ${orderByPatientsDetails.toString()}");
-                        // Clear the cart
-                        await cartProvider.clearCart();
-                        // Order order = Order(
-                        //   orderId: formattedOrderId,
-                        //   userId: widget.userId ?? '', // Provide a default value if null
-                        //   username: widget.username ?? '',
-                        //   email: widget.email ?? '',
-                        //   password: widget.password ?? '',
-                        //   mobile: widget.mobile ?? '',
-                        //   profileImg: widget.profileImg ?? '',
-                        //   role: widget.role ?? '',
-                        //   createdAt: widget.createdAt ?? '',
-                        //   updatedAt: widget.updatedAt ?? '',
-                        //   childName: widget.childName ?? '',
-                        //   childUserRelation: widget.childUserRelation ?? '',
-                        //   childUserPhone: widget.childUserPhone ?? '',
-                        //   childUserDob:  '',
-                        //   parentChildUserAddress: widget.parentChildUserAddress ?? '',
-                        //   childUserHouseNo: widget.childUserHouseNo ?? '',
-                        //   childUserPinCode: widget.childUserPinCode ?? '',
-                        //   childUserCity: widget.childUserCity ?? '',
-                        //   childUserState: widget.childUserState ?? '',
-                        //   selectedDate: widget.selectedDate ?? DateTime.now() , // Format DateTime or provide default
-                        //   startTime: widget.startTime ?? '',
-                        //   endTime: widget.endTime ?? '',
-                        //   totalAmount: widget.totalAmount ?? 0.0, // Provide a default value if null
-                        //   cartItems: widget.cartItemsString,
-                        //   orderStatus: 'PENDING',
-                        //   paymentStatus: 'PENDING', // This should be a non-null string
-                        // );
-                        //
-                        // await DBHelperOrderr.insertOrder(order);
+
+                        // await cartProvider.clearCart();
+                        // Call the API to create the order
+                        try {
+                          await _repository.addOrder(orderByPatientsDetails);
+                          // Clear the cart
+                          await cartProvider.clearCart();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => NavigationMenu()),
+                                (Route<dynamic> route) => false,
+                          );
+                        } catch (e) {
+                          print('Error creating order: $e');
+                        }
+
 
                         Navigator.pushAndRemoveUntil(
                           context,

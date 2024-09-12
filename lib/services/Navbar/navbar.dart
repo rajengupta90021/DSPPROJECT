@@ -18,6 +18,7 @@ import '../../helper/session_manager/SessionController.dart';
 import '../../provider/CartProvider.dart';
 import '../../provider/ProviderData.dart';
 
+import '../../provider/SelectedMemberProvider.dart';
 import '../../provider/controller/loginController.dart';
 import '../../widgets/SnackBarUtils.dart';
 import '../../widgets/loginAndLoginLater.dart';
@@ -380,6 +381,9 @@ class _NavBarState extends State<NavBar> {
                       await _sharedPreferencesService.remove();
                       await loginController.remove();
                       userimagecontroller.clearImage();
+                      // Clear the provider data
+                      final memberProvider = Provider.of<SelectedMemberProvider>(context, listen: false);
+                      memberProvider.logout();
                       print("user ifd deleted ${isLoggedIn}");
                       print("user id after logout ${await _sharedPreferencesService.getUserId()}");
                       final cartProvider = Provider.of<CartProvider>(context, listen: false);

@@ -4,12 +4,13 @@ import 'package:another_stepper/widgets/another_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../Model/MyOrder.dart'; // Update this import as per your project structure
+import '../../../Model/MyOrderDetails.dart';
 import '../../../constant/colors.dart'; // Update this import as per your project structure
 
 class OrderDetailsPage extends StatefulWidget {
-  final Order order;
+  final OrderDetails orderDetails;
 
-  const OrderDetailsPage({Key? key, required this.order}) : super(key: key);
+  const OrderDetailsPage({Key? key, required this.orderDetails}) : super(key: key);
 
   @override
   _OrderDetailsPageState createState() => _OrderDetailsPageState();
@@ -61,13 +62,16 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   @override
   Widget build(BuildContext context) {
     // Extracting details from the widget.order
-    List<dynamic> cartItemsList = jsonDecode(widget.order.cartItems);
+    List<CartItems> cartItemsList = widget.orderDetails.cartItems ?? [];
     String cartItemsFormatted = cartItemsList.asMap().entries.map((entry) {
       int index = entry.key;
       var item = entry.value;
-      return '${index + 1}. ${item['tests']}';
+      return '${index + 1}. ${item.tests}';
     }).join('\n');
 
+    DateTime? selectedDate = widget.orderDetails.selectedDate != null
+        ? DateTime.tryParse(widget.orderDetails.selectedDate!)
+        : null;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -120,7 +124,9 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                        DateFormat('dd/MM/yyyy').format(widget.order.selectedDate),
+                      selectedDate != null
+                          ? DateFormat('dd/MM/yyyy').format(selectedDate)
+                          : 'N/A',
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   ],
@@ -142,7 +148,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      "${widget.order.orderId}",
+                      "${widget.orderDetails.OrderId}",
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   ],
@@ -172,7 +178,9 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      DateFormat('dd/MM/yyyy').format(widget.order.selectedDate),
+                      selectedDate != null
+                          ? DateFormat('dd/MM/yyyy').format(selectedDate)
+                          : 'N/A',
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   ],
@@ -245,9 +253,14 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      "CONFORMED",
-                      style: TextStyle(color: Colors.green, fontSize: 16),
+                      (widget.orderDetails.orderStatus ?? 'N/A').toUpperCase(), // Convert to uppercase
+                      style: TextStyle(
+                        color: widget.orderDetails.orderStatus != null ? Colors.red : Colors.red,
+                        fontSize: 16,
+                      ),
                     ),
+
+
                   ],
                 ),
               ),
@@ -265,12 +278,66 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      "PENDING",
-                      style: TextStyle(color: Colors.red, fontSize: 16),
+                      (widget.orderDetails.paymentStatus ?? 'N/A').toUpperCase(), // Convert to uppercase
+                      style: TextStyle(
+                        color: widget.orderDetails.orderStatus != null ? Colors.red : Colors.red,
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
               ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Test report ",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      (widget.orderDetails.testReport ?? 'N/A').toUpperCase(), // Convert to uppercase
+                      style: TextStyle(
+                        color: widget.orderDetails.orderStatus != null ? Colors.red : Colors.red,
+                        fontSize: 16,
+                      ),
+                    ),
+
+
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "sampleCollected",
+                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                    ),
+                    Text(
+                      (widget.orderDetails.sampleCollected ?? 'N/A').toUpperCase(), // Convert to uppercase
+                      style: TextStyle(
+                        color: widget.orderDetails.orderStatus != null ? Colors.red : Colors.red,
+                        fontSize: 16,
+                      ),
+                    ),
+
+
+                  ],
+                ),
+              ),
+
               SizedBox(height: 20),
 
               Text(
@@ -313,7 +380,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      "${widget.order.totalAmount}",
+                      "${widget.orderDetails.totalAmount}",
                       style: TextStyle(color: Colors.green, fontSize: 16),
                     ),
 
@@ -330,11 +397,11 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 ),
               ),
               SizedBox(height: 10),
-              _buildDetailCard("Address :", widget.order.parentChildUserAddress ?? ''),
-              _buildDetailCard("House No:", widget.order.childUserHouseNo ?? ''),
-              _buildDetailCard("Pin Code:", widget.order.childUserPinCode ?? ''),
-              _buildDetailCard("City:", widget.order.childUserCity ?? ''),
-              _buildDetailCard("State:", widget.order.childUserState ?? ''),
+              _buildDetailCard("Address :", widget.orderDetails.parentChildUserAddress ?? ''),
+              _buildDetailCard("House No:", widget.orderDetails.childUserHouseNo ?? ''),
+              _buildDetailCard("Pin Code:", widget.orderDetails.childUserPinCode ?? ''),
+              _buildDetailCard("City:", widget.orderDetails.childUserCity ?? ''),
+              _buildDetailCard("State:", widget.orderDetails.childUserState ?? ''),
               SizedBox(height: 20),
               Text(
                 "PATIENT DETAILS",
@@ -359,7 +426,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      "${widget.order.childName}",
+                      "${widget.orderDetails.childName}",
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   ],
@@ -379,7 +446,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      "${widget.order.childUserPhone}",
+                      "${widget.orderDetails.childUserPhone}",
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   ],
@@ -399,7 +466,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      "${widget.order.childUserRelation}",
+                      "${widget.orderDetails.childUserRelation}",
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   ],
@@ -419,7 +486,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       style: TextStyle(color: Colors.black54, fontSize: 16),
                     ),
                     Text(
-                      "${widget.order.email}",
+                      "${widget.orderDetails.email}",
                       style: TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   ],

@@ -33,4 +33,14 @@ class SelectedMemberProvider extends ChangeNotifier {
     _gender = gender;
     notifyListeners();
   }
+  // Method to clear member details on logout
+  void logout() {
+    _name = null;
+    _email = null;
+    _phone = null;
+    _relation = null;
+    _dob = null;
+    _gender = null;
+    notifyListeners();
+  }
 }

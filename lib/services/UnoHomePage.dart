@@ -7,6 +7,7 @@ import 'package:dspuiproject/Model/ChildMember.dart';
 import 'package:dspuiproject/Model/UserInfo.dart';
 import 'package:dspuiproject/repository/CategoryListRepository.dart';
 import 'package:dspuiproject/services/Navbar/Navbar_Subscription.dart';
+import 'package:dspuiproject/services/ViewReports.dart';
 import 'package:dspuiproject/widgets/loginAndLoginLater.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -37,7 +38,7 @@ import '../widgets/rounded_botton.dart';
 import 'BookingTest3.dart';
 import 'BottomNavigationfooter/NavigationMenu.dart';
 import 'SingleCategoryDetailsPage/SingleCategoryDetailsPage2.dart';
-import 'Testingpage.dart';
+import 'FindYourCenter.dart';
 import 'auth/login_screen.dart';
 import 'bookingtest2.dart';
 import 'cart.dart';
@@ -299,8 +300,18 @@ class _UnoHomePageState extends State<UnoHomePage> {
 
                Consumer<SelectedMemberProvider>(
                    builder: (context,provider,_){
-                     String name = provider.name ?? "user";
-                     String truncatedName = name.length > 8 ? '${name.substring(0, 8)}...' : name;
+                     // Get the name from the provider or use _username as fallback
+                     String name = provider.name ?? _username;
+
+                     // Function to get initials from a full name
+                     String getInitials(String fullName) {
+                       List<String> names = fullName.split(' ');
+                       String initials = names.map((n) => n.isNotEmpty ? n[0] : '').join();
+                       return initials.toUpperCase();
+                     }
+
+                     // Get initials for the name
+                     String initials = getInitials(name);
                      return  Container(
                        height: 50,
                        // decoration: BoxDecoration(
@@ -329,7 +340,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                                      child: FittedBox(
                                        fit: BoxFit.scaleDown,
                                        child: Text(
-                                         truncatedName,
+                                         initials.isNotEmpty == true ? initials : 'User',
                                          textAlign: TextAlign.center,
                                          overflow: TextOverflow.ellipsis,
                                          style: TextStyle(
@@ -459,12 +470,12 @@ class _UnoHomePageState extends State<UnoHomePage> {
                     bool isLoggedIn = await _sharedPreferencesService.isUserLoggedIn();
                     if(isLoggedIn){
 
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>MyLocation()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>FindYouCenter()));
 
                     }else{
                       // Navigator.pop(context);
 
-                      LoginandLoginLaterpage.show(context, "Find a center  ");
+                      LoginandLoginLaterpage.show(context, "Find your center  ");
                     }
 
                   },
@@ -498,7 +509,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                                 ),
 
                                 Text(
-                                  'Find a Center',
+                                  'Find Your Center',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 15,
@@ -738,6 +749,7 @@ class _UnoHomePageState extends State<UnoHomePage> {
                           onTap: () {
                             // Handle "View Report" button tap
                             // fetchData();
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewReports()));
                           },
                           child: Card(
                             elevation: 20,
